@@ -4,6 +4,7 @@
         Title="赛尔号辅助启动器" Width="880" Height="600"
         MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
+        Icon="ico.ico"
         Background="{StaticResource WindowBgBrush}">
     <Window.Resources>
         <ContextMenu x:Key="ProgramsContextMenu">
