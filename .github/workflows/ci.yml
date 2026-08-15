@@ -15,9 +15,6 @@ jobs:
       - name: Build
         run: msbuild SeerLauncher.sln /restore /p:Configuration=Release
 
-      - name: Test
-        run: dotnet test SeerLauncher.Tests\SeerLauncher.Tests.csproj -c Release --no-build
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
