@@ -8,6 +8,14 @@
     <LangVersion>7.3</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <ApplicationIcon>ico.ico</ApplicationIcon>
+    <AssemblyTitle>赛尔号辅助启动器</AssemblyTitle>
+    <AssemblyDescription>赛尔号辅助启动器</AssemblyDescription>
+    <AssemblyCompany>梦念逍遥</AssemblyCompany>
+    <AssemblyProduct>赛尔号辅助启动器</AssemblyProduct>
+    <AssemblyCopyright>Copyright © 2026 梦念逍遥</AssemblyCopyright>
+    <AssemblyVersion>2.3.7.0</AssemblyVersion>
+    <AssemblyFileVersion>2.3.7.0</AssemblyFileVersion>
+    <NeutralResourcesLanguage>zh-CN</NeutralResourcesLanguage>
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="ico.ico" />
