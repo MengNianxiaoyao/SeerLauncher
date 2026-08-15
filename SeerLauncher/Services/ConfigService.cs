@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using Newtonsoft.Json;
+using System.Web.Script.Serialization;
 using SeerLauncher.Models;
 
 namespace SeerLauncher.Services
@@ -21,6 +22,7 @@ namespace SeerLauncher.Services
         private const string IniKeyFilesName = "filesname";
         private const string IniSectionFileConfig = "fileconfig";
 
+        private readonly JavaScriptSerializer _serializer = new JavaScriptSerializer();
         private readonly string _baseDirectory;
         
         private AppConfig _config;
@@ -91,12 +93,12 @@ namespace SeerLauncher.Services
         public void Save()
         {
             Directory.CreateDirectory(_baseDirectory);
-            File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(_config, Formatting.Indented), new UTF8Encoding(false));
+            File.WriteAllText(ConfigPath, SerializeFormatted(_config), new UTF8Encoding(false));
         }
 
         private AppConfig Deserialize(string json)
         {
-            var config = JsonConvert.DeserializeObject<AppConfig>(json);
+            var config = _serializer.Deserialize<AppConfig>(json);
             if (config.Keywords == null) config.Keywords = new List<string>();
             if (config.Programs == null) config.Programs = new Dictionary<string, string>();
             return config;
@@ -149,6 +151,49 @@ namespace SeerLauncher.Services
             var buffer = new StringBuilder(65536);
             GetPrivateProfileString(section, key, defaultValue, buffer, buffer.Capacity, IniPath);
             return buffer.ToString();
+        }
+
+        private string SerializeFormatted(AppConfig config)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("{");
+            sb.AppendLine("  \"Keywords\": [");
+            for (var i = 0; i < config.Keywords.Count; i++)
+            {
+                sb.Append("    \"");
+                sb.Append(EscapeJson(config.Keywords[i]));
+                sb.Append("\"");
+                if (i < config.Keywords.Count - 1) sb.AppendLine(",");
+                else sb.AppendLine();
+            }
+            sb.AppendLine("  ],");
+            sb.AppendLine("  \"Programs\": {");
+            var first = true;
+            foreach (var kv in config.Programs)
+            {
+                if (!first) sb.AppendLine(",");
+                first = false;
+                sb.Append("    \"");
+                sb.Append(EscapeJson(kv.Key));
+                sb.Append("\": \"");
+                sb.Append(EscapeJson(kv.Value));
+                sb.Append("\"");
+            }
+            if (!config.Programs.Any()) sb.AppendLine();
+            else sb.AppendLine();
+            sb.AppendLine("  }");
+            sb.Append("}");
+            return sb.ToString();
+        }
+
+        private static string EscapeJson(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            return s.Replace("\\", "\\\\")
+                     .Replace("\"", "\\\"")
+                     .Replace("\n", "\\n")
+                     .Replace("\r", "\\r")
+                     .Replace("\t", "\\t");
         }
     }
 }
