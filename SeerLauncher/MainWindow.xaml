@@ -96,9 +96,9 @@
                              ContextMenu="{StaticResource KeywordsContextMenu}"
                              PreviewMouseRightButtonDown="KeywordList_PreviewMouseRightButtonDown"/>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                        <Button Content="添加关键字" Click="AddKeywordMenu_Click" Margin="0,0,6,0"/>
-                        <Button Content="修改关键字" Click="ModifyKeywordMenu_Click" Margin="0,0,6,0"/>
-                        <Button Content="删除关键字" Click="DeleteKeywordMenu_Click"/>
+                        <Button Content="添加" Click="AddKeywordMenu_Click" Margin="0,0,6,0"/>
+                        <Button Content="修改" Click="ModifyKeywordMenu_Click" Margin="0,0,6,0"/>
+                        <Button Content="删除" Click="DeleteKeywordMenu_Click"/>
                     </StackPanel>
                 </Grid>
             </Border>
