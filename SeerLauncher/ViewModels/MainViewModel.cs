@@ -251,7 +251,7 @@ var keyword = dialog.InputText;
 
         public void AuxiliaryDownload()
         {
-            if (MessageDialog.Confirm("点击确认跳转至开发者博客，点击取消跳转至有道云文档", "跳转提示")
+            if (MessageDialog.Confirm("点击确认跳转至开发者博客，点击取消跳转至有道云文档", "跳转提示"))
                 OpenUrl(Constants.DeveloperBlog);
             else
                 OpenUrl(Constants.YoudaoDocs);
