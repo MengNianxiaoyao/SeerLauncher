@@ -129,9 +129,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="8" Padding="6" SnapsToDevicePixels="True">
-                            <ScrollViewer>
-                                <ItemsPresenter/>
-                            </ScrollViewer>
+                            <ItemsPresenter/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
