@@ -25,6 +25,18 @@ namespace SeerLauncher.Tests
         }
 
         [Test]
+        public void IsForceUpdate_WhenValueIsYes_ReturnsTrue()
+        {
+            var service = new UpdateService(Constants.UserAgent);
+            var html = "强制更新【是】强制更新";
+
+            var info = service.Parse(html);
+
+            Assert.IsTrue(info.IsForceUpdate);
+            Assert.AreEqual("是", info.ForceUpdate);
+        }
+
+        [Test]
         public void Parse_WhenMarkerMissing_ReturnsEmpty()
         {
             var service = new UpdateService(Constants.UserAgent);
