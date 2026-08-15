@@ -1,0 +1,102 @@
+using System;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using SeerLauncher.ViewModels;
+
+namespace SeerLauncher
+{
+    public partial class MainWindow : Window
+    {
+        private readonly MainViewModel _viewModel;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            _viewModel = new MainViewModel();
+            DataContext = _viewModel;
+            VersionBar.Text = _viewModel.VersionText;
+        }
+
+        private void ProgramsList_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop)
+                ? DragDropEffects.Copy
+                : DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        private void ProgramsList_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
+                _viewModel.HandleDroppedFiles(files);
+        }
+
+        private void ProgramsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (ProgramsList.SelectedIndex >= 0)
+                _viewModel.LaunchSelected();
+        }
+
+        private void ProgramsList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var index = IndexUnderMouse(ProgramsList, e.GetPosition(ProgramsList));
+            ProgramsList.SelectedIndex = index;
+            var onItem = index >= 0;
+            var menu = (ContextMenu)FindResource("ProgramsContextMenu");
+            SetMenuItemVisibility(menu, "CtxAddProgram", !onItem);
+            SetMenuItemVisibility(menu, "CtxLaunchProgram", onItem);
+            SetMenuItemVisibility(menu, "CtxDeleteProgram", onItem);
+            SetMenuItemVisibility(menu, "CtxOpenDir", onItem);
+        }
+
+        private void KeywordList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var index = IndexUnderMouse(KeywordList, e.GetPosition(KeywordList));
+            KeywordList.SelectedIndex = index;
+            var onItem = index >= 0;
+            var menu = (ContextMenu)FindResource("KeywordsContextMenu");
+            SetMenuItemVisibility(menu, "CtxAddKeyword", !onItem);
+            SetMenuItemVisibility(menu, "CtxModifyKeyword", onItem);
+            SetMenuItemVisibility(menu, "CtxDeleteKeyword", onItem);
+        }
+
+        private static void SetMenuItemVisibility(ContextMenu menu, string name, bool visible)
+        {
+            var item = (MenuItem)menu.FindName(name);
+            item.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private static int IndexUnderMouse(ListBox list, Point position)
+        {
+            for (var i = 0; i < list.Items.Count; i++)
+            {
+                var container = list.ItemContainerGenerator.ContainerFromIndex(i) as ListBoxItem;
+                if (container == null) continue;
+                var topLeft = container.TranslatePoint(new Point(0, 0), list);
+                if (position.X >= topLeft.X && position.Y >= topLeft.Y &&
+                    position.X <= topLeft.X + container.ActualWidth &&
+                    position.Y <= topLeft.Y + container.ActualHeight)
+                    return i;
+            }
+            return -1;
+        }
+
+        private void AddProgramMenu_Click(object sender, RoutedEventArgs e) => _viewModel.AddProgram();
+        private void LaunchProgramMenu_Click(object sender, RoutedEventArgs e) => _viewModel.LaunchSelected();
+        private void DeleteProgramMenu_Click(object sender, RoutedEventArgs e) => _viewModel.DeleteProgram();
+        private void OpenDirMenu_Click(object sender, RoutedEventArgs e) => _viewModel.OpenDirectory();
+        private void RefreshMenu_Click(object sender, RoutedEventArgs e) => _viewModel.RefreshDisplay();
+
+        private void AddKeywordMenu_Click(object sender, RoutedEventArgs e) => _viewModel.AddKeyword();
+        private void ModifyKeywordMenu_Click(object sender, RoutedEventArgs e) => _viewModel.ModifyKeyword();
+        private void DeleteKeywordMenu_Click(object sender, RoutedEventArgs e) => _viewModel.DeleteKeyword();
+
+        private void AuxDownload_Click(object sender, RoutedEventArgs e) => _viewModel.AuxiliaryDownload();
+        private void CheckUpdate_Click(object sender, RoutedEventArgs e) => _viewModel.CheckUpdateFromButton();
+        private void Instructions_Click(object sender, RoutedEventArgs e) => _viewModel.OpenInstructions();
+        private void Developer_Click(object sender, RoutedEventArgs e) => _viewModel.OpenBilibili();
+        private void Store_Click(object sender, RoutedEventArgs e) => _viewModel.OpenStore();
+    }
+}
