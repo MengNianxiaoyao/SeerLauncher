@@ -88,5 +88,47 @@ namespace SeerLauncher.Tests
             Assert.AreEqual("Seer", parts[0]);
             Assert.AreEqual("雷小伊", parts[1]);
         }
+
+        [Test]
+        public void Load_WhenJsonCorrupt_RecreatesDefaults()
+        {
+            var jsonPath = Path.Combine(_dir, ConfigService.ConfigFileName);
+            File.WriteAllText(jsonPath, "{ this is not valid json !!!", Encoding.UTF8);
+
+            var service = new ConfigService(_dir);
+            var config = service.Load();
+
+            Assert.AreEqual(4, config.Keywords.Count);
+            Assert.Contains("Seer", config.Keywords);
+            var reloaded = File.ReadAllText(jsonPath, Encoding.UTF8);
+            Assert.IsTrue(reloaded.Length > 0);
+        }
+
+        [Test]
+        public void Load_WhenJsonCorruptAndBackupExists_RestoresFromBackup()
+        {
+            var bakPath = Path.Combine(_dir, ConfigService.IniBackupFileName);
+            File.WriteAllText(bakPath,
+                "[config]\r\nkeywords=Seer|雷小伊\r\n"
+                + "[filesname]\r\nfilesname=ChikaLauncher.exe\r\n"
+                + "[fileconfig]\r\nChikaLauncher.exe=C:\\Games\\\r\n",
+                Encoding.Default);
+
+            var jsonPath = Path.Combine(_dir, ConfigService.ConfigFileName);
+            File.WriteAllText(jsonPath, "{ corrupt json !!!", Encoding.UTF8);
+
+            var service = new ConfigService(_dir);
+            var config = service.Load();
+
+            Assert.AreEqual(2, config.Keywords.Count);
+            Assert.AreEqual("雷小伊", config.Keywords[1]);
+            Assert.AreEqual("C:\\Games\\", config.Programs["ChikaLauncher.exe"]);
+        }
+
+        [Test]
+        public void IsValidKeyword_Null_ReturnsFalse()
+        {
+            Assert.IsFalse(ConfigService.IsValidKeyword(null));
+        }
     }
 }

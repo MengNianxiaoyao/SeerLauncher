@@ -47,7 +47,14 @@ namespace SeerLauncher.Services
         {
             if (File.Exists(ConfigPath))
             {
-                _config = Deserialize(File.ReadAllText(ConfigPath, Encoding.UTF8));
+                try
+                {
+                    _config = Deserialize(File.ReadAllText(ConfigPath, Encoding.UTF8));
+                }
+                catch (Exception)
+                {
+                    _config = RecoverFromCorruptConfig();
+                }
             }
             else if (File.Exists(IniPath))
             {
@@ -55,12 +62,30 @@ namespace SeerLauncher.Services
             }
             else
             {
-                _config = new AppConfig();
-                foreach (var keyword in Split(Constants.DefaultKeywords))
-                    _config.Keywords.Add(keyword);
-                Save();
+                _config = CreateDefaultConfig();
             }
             return _config;
+        }
+
+        private AppConfig RecoverFromCorruptConfig()
+        {
+            if (File.Exists(IniBackupPath))
+            {
+                if (File.Exists(IniPath)) File.Delete(IniPath);
+                File.Move(IniBackupPath, IniPath);
+                return MigrateFromIni();
+            }
+            return CreateDefaultConfig();
+        }
+
+        private AppConfig CreateDefaultConfig()
+        {
+            var config = new AppConfig();
+            foreach (var keyword in Split(Constants.DefaultKeywords))
+                config.Keywords.Add(keyword);
+            _config = config;
+            Save();
+            return config;
         }
 
         public void Save()
@@ -108,6 +133,7 @@ namespace SeerLauncher.Services
 
         public static bool IsValidKeyword(string keyword)
         {
+            if (keyword == null) return false;
             const string illegal = "\\/:*?\"<>|";
             foreach (var c in illegal)
                 if (keyword.IndexOf(c) >= 0) return false;
