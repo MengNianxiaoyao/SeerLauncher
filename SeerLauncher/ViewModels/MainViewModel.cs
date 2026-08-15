@@ -93,7 +93,6 @@ namespace SeerLauncher.ViewModels
             if (dialog.ShowDialog() != true) return;
 
             var keyword = dialog.InputText;
-var keyword = dialog.InputText;
             if (string.IsNullOrEmpty(keyword))
             {
                 MessageDialog.Show("添加的关键字不能为空", "操作提示");
