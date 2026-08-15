@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore SeerLauncher.sln
+
+      - name: Build
+        run: dotnet build SeerLauncher.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test SeerLauncher.sln -c Release --no-build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SeerLauncher
+          path: SeerLauncher/bin/Release/**/*
