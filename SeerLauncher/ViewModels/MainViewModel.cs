@@ -48,7 +48,7 @@ namespace SeerLauncher.ViewModels
         public ObservableCollection<string> Keywords { get; } = new ObservableCollection<string>();
         public ObservableCollection<string> Programs { get; } = new ObservableCollection<string>();
 
-        public string VersionText => "Ver：" + Constants.CurrentVersion;
+        public string VersionText => "Ver: " + Constants.CurrentVersion;
 
         private string _selectedKeyword;
         public string SelectedKeyword

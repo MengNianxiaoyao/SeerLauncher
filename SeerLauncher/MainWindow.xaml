@@ -118,7 +118,16 @@
         <!-- 状态栏 -->
         <Border Grid.Row="2" Background="{StaticResource CardBgBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="12,5">
-            <TextBlock x:Name="VersionBar" FontSize="12" Foreground="{StaticResource MutedTextBrush}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="VersionBar" Grid.Column="0" FontSize="12"
+                           Foreground="{StaticResource MutedTextBrush}"/>
+                <TextBlock Grid.Column="1" Text="开发者：梦念逍遥" FontSize="12"
+                           Foreground="{StaticResource MutedTextBrush}"/>
+            </Grid>
         </Border>
     </Grid>
 </Window>
