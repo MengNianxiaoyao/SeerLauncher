@@ -27,12 +27,16 @@ jobs:
       - name: Build
         run: msbuild SeerLauncher.sln /restore /p:Configuration=Release
 
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path SeerLauncher/bin/Release/net48/*.exe -DestinationPath SeerLauncher.zip
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
           body: ${{ github.event.head_commit.message }}
-          files: SeerLauncher/bin/Release/net48/*.exe
+          files: SeerLauncher.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
