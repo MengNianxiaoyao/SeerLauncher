@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   release:
-    if: startsWith(github.event.head_commit.message, 'chore: v')
+    if: "startsWith(github.event.head_commit.message, 'chore: v')"
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
