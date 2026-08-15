@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: startsWith(github.event.head_commit.message, 'chore: v')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: microsoft/setup-msbuild@v3
+
+      - name: Extract version
+        id: version
+        shell: pwsh
+        run: |
+          $msg = "${{ github.event.head_commit.message }}"
+          $ver = $msg -replace '^chore: v(.+)$', '$1'
+          echo "version=$ver" >> $env:GITHUB_OUTPUT
+
+      - name: Build
+        run: msbuild SeerLauncher.sln /restore /p:Configuration=Release
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body: ${{ github.event.head_commit.message }}
+          files: SeerLauncher/bin/Release/net48/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
