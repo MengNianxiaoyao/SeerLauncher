@@ -9,7 +9,7 @@ namespace SeerLauncher
         public const string DeveloperBlog = "https://blog.mnxyio.top/posts/seer/tools";
         public const string YoudaoDocs = "https://note.youdao.com/ynoteshare/index.html?id=7c57edf3eab981a190d910ab47c7db97";
         public const string StoreUrl = "https://seerxm.mnxyio.top/magic";
-        public const string CurrentVersion = "2.3.6";
+        public const string CurrentVersion = "2.3.7";
         public const string DefaultKeywords = "Seer|CHIKA|雷小伊|重聚";
     }
 }
