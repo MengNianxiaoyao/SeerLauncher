@@ -4,7 +4,7 @@
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>SeerLauncher</RootNamespace>
-    <AssemblyName>SeerLauncher</AssemblyName>
+    <AssemblyName>赛尔号辅助启动器</AssemblyName>
     <LangVersion>7.3</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <ApplicationIcon>ico.ico</ApplicationIcon>
