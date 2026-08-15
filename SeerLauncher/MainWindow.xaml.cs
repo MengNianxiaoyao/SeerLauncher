@@ -66,9 +66,14 @@ namespace SeerLauncher
 
         private void SetMenuItemVisibility(ContextMenu menu, string name, bool visible)
         {
-            var item = FindName(name) as MenuItem;
-            if (item != null)
-                item.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            foreach (var item in menu.Items)
+            {
+                if (item is MenuItem mi && mi.Name == name)
+                {
+                    mi.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+                    return;
+                }
+            }
         }
 
         private static int IndexUnderMouse(ListBox list, Point position)
