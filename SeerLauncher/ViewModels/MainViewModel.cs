@@ -20,6 +20,7 @@ namespace SeerLauncher.ViewModels
         private readonly FileOperationsService _fileOps = new FileOperationsService();
         private readonly string _runDirectory;
         private readonly string _selfName;
+        private static Window OwnerWin => Application.Current.MainWindow;
 
         public MainViewModel()
         {
@@ -88,18 +89,18 @@ namespace SeerLauncher.ViewModels
 
         public void AddKeyword()
         {
-            var dialog = new InputDialog("请输入要添加的关键字");
+            var dialog = new InputDialog("请输入要添加的关键字") { Owner = OwnerWin };
             if (dialog.ShowDialog() != true) return;
 
             var keyword = dialog.InputText;
             if (string.IsNullOrEmpty(keyword))
             {
-                MessageBox.Show("添加的关键字不能为空", "操作提示");
+                MessageBox.Show(OwnerWin,"添加的关键字不能为空", "操作提示");
                 return;
             }
             if (!ConfigService.IsValidKeyword(keyword))
             {
-                MessageBox.Show("关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
+                MessageBox.Show(OwnerWin,"关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
                 return;
             }
             _configService.Config.Keywords.Add(keyword.Trim());
@@ -111,21 +112,21 @@ namespace SeerLauncher.ViewModels
         {
             if (SelectedKeyword == null)
             {
-                MessageBox.Show("请选择需要修改的关键字", "操作提示");
+                MessageBox.Show(OwnerWin,"请选择需要修改的关键字", "操作提示");
                 return;
             }
-            var dialog = new InputDialog("请输入新的关键字", SelectedKeyword);
+            var dialog = new InputDialog("请输入新的关键字", SelectedKeyword) { Owner = OwnerWin };
             if (dialog.ShowDialog() != true) return;
 
             var keyword = dialog.InputText;
             if (string.IsNullOrEmpty(keyword))
             {
-                MessageBox.Show("新的关键字不能为空", "操作提示");
+                MessageBox.Show(OwnerWin,"新的关键字不能为空", "操作提示");
                 return;
             }
             if (!ConfigService.IsValidKeyword(keyword))
             {
-                MessageBox.Show("关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
+                MessageBox.Show(OwnerWin,"关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
                 return;
             }
             var index = _configService.Config.Keywords.IndexOf(SelectedKeyword);
@@ -138,10 +139,10 @@ namespace SeerLauncher.ViewModels
         {
             if (SelectedKeyword == null)
             {
-                MessageBox.Show("请选择需要删除的关键字", "操作提示");
+                MessageBox.Show(OwnerWin,"请选择需要删除的关键字", "操作提示");
                 return;
             }
-            if (MessageBox.Show("是否删除此关键字？", "操作提示",
+            if (MessageBox.Show(OwnerWin,"是否删除此关键字？", "操作提示",
                 MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) return;
 
             _configService.Config.Keywords.Remove(SelectedKeyword);
@@ -186,10 +187,10 @@ namespace SeerLauncher.ViewModels
                 var name = Path.GetFileName(file);
                 if (!name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    MessageBox.Show("添加的文件不是可执行文件", "操作提示");
+                    MessageBox.Show(OwnerWin,"添加的文件不是可执行文件", "操作提示");
                     continue;
                 }
-                if (MessageBox.Show("是否添加《" + name + "》？", "操作提示",
+                if (MessageBox.Show(OwnerWin,"是否添加《" + name + "》？", "操作提示",
                     MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 {
                     AddProgramFile(file);
@@ -201,7 +202,7 @@ namespace SeerLauncher.ViewModels
         {
             if (SelectedProgram == null)
             {
-                MessageBox.Show("请选择要启动的程序", "操作提示");
+                MessageBox.Show(OwnerWin,"请选择要启动的程序", "操作提示");
                 return;
             }
             var name = SelectedProgram;
@@ -211,18 +212,18 @@ namespace SeerLauncher.ViewModels
                 ? Path.Combine(_runDirectory, name)
                 : Path.Combine(path, name);
             if (!_fileOps.Launch(fullPath))
-                MessageBox.Show("启动失败，文件不存在：" + fullPath, "操作提示");
+                MessageBox.Show(OwnerWin,"启动失败，文件不存在：" + fullPath, "操作提示");
         }
 
         public void DeleteProgram()
         {
             if (SelectedProgram == null)
             {
-                MessageBox.Show("请选择要删除的程序", "操作提示");
+                MessageBox.Show(OwnerWin,"请选择要删除的程序", "操作提示");
                 return;
             }
             var name = SelectedProgram;
-            if (MessageBox.Show("是否将《" + name + "》移动到回收站？", "操作提示",
+            if (MessageBox.Show(OwnerWin,"是否将《" + name + "》移动到回收站？", "操作提示",
                 MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) return;
 
             string path;
@@ -252,7 +253,7 @@ namespace SeerLauncher.ViewModels
 
         public void AuxiliaryDownload()
         {
-            if (MessageBox.Show("点击确认跳转至开发者博客，点击取消跳转至有道云文档", "跳转提示",
+            if (MessageBox.Show(OwnerWin,"点击确认跳转至开发者博客，点击取消跳转至有道云文档", "跳转提示",
                 MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
                 OpenUrl(Constants.DeveloperBlog);
             else
@@ -274,13 +275,13 @@ namespace SeerLauncher.ViewModels
             }
             catch
             {
-                if (fromButton) MessageBox.Show("检测更新失败", "更新提示");
+                if (fromButton) MessageBox.Show(OwnerWin,"检测更新失败", "更新提示");
                 return;
             }
 
             if (string.IsNullOrEmpty(info.Version))
             {
-                if (fromButton) MessageBox.Show("检测更新失败", "更新提示");
+                if (fromButton) MessageBox.Show(OwnerWin,"检测更新失败", "更新提示");
                 return;
             }
 
@@ -290,7 +291,7 @@ namespace SeerLauncher.ViewModels
                             + "以下是本次更新内容：" + Environment.NewLine + info.Info;
                 if (info.IsForceUpdate)
                 {
-                    if (MessageBox.Show(message, "更新提示",
+                    if (MessageBox.Show(OwnerWin,message, "更新提示",
                         MessageBoxButton.OK, MessageBoxImage.Information) == MessageBoxResult.OK)
                     {
                         OpenUrl(info.DownloadUrl);
@@ -299,7 +300,7 @@ namespace SeerLauncher.ViewModels
                 }
                 else
                 {
-                    if (MessageBox.Show(message, "更新提示",
+                    if (MessageBox.Show(OwnerWin,message, "更新提示",
                         MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
                         OpenUrl(info.DownloadUrl);
@@ -308,7 +309,7 @@ namespace SeerLauncher.ViewModels
             }
             else if (fromButton)
             {
-                MessageBox.Show("暂无更新", "更新提示");
+                MessageBox.Show(OwnerWin,"暂无更新", "更新提示");
             }
         }
 
