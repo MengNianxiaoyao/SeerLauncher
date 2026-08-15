@@ -23,33 +23,12 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 菜单栏 -->
-        <Menu Grid.Row="0" Background="#FFFFFF"
-              BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-            <MenuItem Header="程序操作">
-                <MenuItem Header="添加程序" Click="AddProgramMenu_Click"/>
-                <MenuItem Header="启动程序" Click="LaunchProgramMenu_Click"/>
-                <MenuItem Header="删除程序" Click="DeleteProgramMenu_Click"/>
-                <MenuItem Header="打开所在目录" Click="OpenDirMenu_Click"/>
-                <Separator/>
-                <MenuItem Header="显示刷新" Click="RefreshMenu_Click"/>
-            </MenuItem>
-            <MenuItem Header="关键字操作">
-                <MenuItem Header="添加关键字" Click="AddKeywordMenu_Click"/>
-                <MenuItem Header="修改关键字" Click="ModifyKeywordMenu_Click"/>
-                <MenuItem Header="删除关键字" Click="DeleteKeywordMenu_Click"/>
-                <Separator/>
-                <MenuItem Header="刷新关键字" Click="RefreshMenu_Click"/>
-            </MenuItem>
-        </Menu>
-
         <!-- 工具栏 -->
-        <Border Grid.Row="1" Background="{StaticResource CardBgBrush}"
+        <Border Grid.Row="0" Background="{StaticResource CardBgBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,8">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -72,7 +51,7 @@
         </Border>
 
         <!-- 内容区 -->
-        <Grid Grid.Row="2" Margin="12">
+        <Grid Grid.Row="1" Margin="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="14"/>
