@@ -8,12 +8,14 @@
         Background="{StaticResource WindowBgBrush}">
     <Window.Resources>
         <ContextMenu x:Key="ProgramsContextMenu">
+            <MenuItem x:Name="CtxRefreshProgram" Header="刷新显示" Click="RefreshMenu_Click"/>
             <MenuItem x:Name="CtxAddProgram" Header="添加程序" Click="AddProgramMenu_Click"/>
             <MenuItem x:Name="CtxLaunchProgram" Header="启动程序" Click="LaunchProgramMenu_Click"/>
             <MenuItem x:Name="CtxDeleteProgram" Header="删除程序" Click="DeleteProgramMenu_Click"/>
             <MenuItem x:Name="CtxOpenDir" Header="打开所在目录" Click="OpenDirMenu_Click"/>
         </ContextMenu>
         <ContextMenu x:Key="KeywordsContextMenu">
+            <MenuItem x:Name="CtxRefreshKeyword" Header="刷新" Click="RefreshMenu_Click"/>
             <MenuItem x:Name="CtxAddKeyword" Header="添加关键字" Click="AddKeywordMenu_Click"/>
             <MenuItem x:Name="CtxModifyKeyword" Header="修改关键字" Click="ModifyKeywordMenu_Click"/>
             <MenuItem x:Name="CtxDeleteKeyword" Header="删除关键字" Click="DeleteKeywordMenu_Click"/>

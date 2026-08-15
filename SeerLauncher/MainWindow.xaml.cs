@@ -45,6 +45,7 @@ namespace SeerLauncher
             ProgramsList.SelectedIndex = index;
             var onItem = index >= 0;
             var menu = (ContextMenu)FindResource("ProgramsContextMenu");
+            SetMenuItemVisibility(menu, "CtxRefreshProgram", true);
             SetMenuItemVisibility(menu, "CtxAddProgram", !onItem);
             SetMenuItemVisibility(menu, "CtxLaunchProgram", onItem);
             SetMenuItemVisibility(menu, "CtxDeleteProgram", onItem);
@@ -57,6 +58,7 @@ namespace SeerLauncher
             KeywordList.SelectedIndex = index;
             var onItem = index >= 0;
             var menu = (ContextMenu)FindResource("KeywordsContextMenu");
+            SetMenuItemVisibility(menu, "CtxRefreshKeyword", true);
             SetMenuItemVisibility(menu, "CtxAddKeyword", !onItem);
             SetMenuItemVisibility(menu, "CtxModifyKeyword", onItem);
             SetMenuItemVisibility(menu, "CtxDeleteKeyword", onItem);
