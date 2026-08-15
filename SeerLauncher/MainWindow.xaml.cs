@@ -62,10 +62,11 @@ namespace SeerLauncher
             SetMenuItemVisibility(menu, "CtxDeleteKeyword", onItem);
         }
 
-        private static void SetMenuItemVisibility(ContextMenu menu, string name, bool visible)
+        private void SetMenuItemVisibility(ContextMenu menu, string name, bool visible)
         {
-            var item = (MenuItem)menu.FindName(name);
-            item.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            var item = FindName(name) as MenuItem;
+            if (item != null)
+                item.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private static int IndexUnderMouse(ListBox list, Point position)
