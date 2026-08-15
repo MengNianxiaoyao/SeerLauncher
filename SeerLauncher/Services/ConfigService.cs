@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 using SeerLauncher.Models;
 
 namespace SeerLauncher.Services
@@ -22,7 +22,7 @@ namespace SeerLauncher.Services
         private const string IniSectionFileConfig = "fileconfig";
 
         private readonly string _baseDirectory;
-        private readonly JavaScriptSerializer _serializer = new JavaScriptSerializer();
+        
         private AppConfig _config;
 
         public ConfigService(string baseDirectory)
@@ -91,12 +91,12 @@ namespace SeerLauncher.Services
         public void Save()
         {
             Directory.CreateDirectory(_baseDirectory);
-            File.WriteAllText(ConfigPath, _serializer.Serialize(_config), new UTF8Encoding(false));
+            File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(_config, Formatting.Indented), new UTF8Encoding(false));
         }
 
         private AppConfig Deserialize(string json)
         {
-            var config = _serializer.Deserialize<AppConfig>(json);
+            var config = JsonConvert.DeserializeObject<AppConfig>(json);
             if (config.Keywords == null) config.Keywords = new List<string>();
             if (config.Programs == null) config.Programs = new Dictionary<string, string>();
             return config;
