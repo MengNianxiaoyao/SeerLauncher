@@ -1,5 +1,7 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
+using SeerLauncher.Controls;
 
 namespace SeerLauncher
 {
@@ -28,6 +30,12 @@ namespace SeerLauncher
             }
 
             Owner = Application.Current.MainWindow;
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            WindowEffects.Apply(this);
         }
 
         private void AddButton(string content, bool isDefault, bool isCancel)

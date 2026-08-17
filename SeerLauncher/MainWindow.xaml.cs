@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using SeerLauncher.Controls;
 using SeerLauncher.ViewModels;
 
 namespace SeerLauncher
@@ -17,6 +18,12 @@ namespace SeerLauncher
             _viewModel = new MainViewModel();
             DataContext = _viewModel;
             VersionBar.Text = _viewModel.VersionText;
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            WindowEffects.Apply(this);
         }
 
         private void ProgramsList_DragOver(object sender, DragEventArgs e)

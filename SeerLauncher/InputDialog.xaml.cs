@@ -1,4 +1,6 @@
+using System;
 using System.Windows;
+using SeerLauncher.Controls;
 
 namespace SeerLauncher
 {
@@ -11,6 +13,12 @@ namespace SeerLauncher
             InputBox.Text = defaultValue;
             InputBox.SelectAll();
             Loaded += (s, e) => InputBox.Focus();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            WindowEffects.Apply(this);
         }
 
         public string InputText => InputBox.Text;

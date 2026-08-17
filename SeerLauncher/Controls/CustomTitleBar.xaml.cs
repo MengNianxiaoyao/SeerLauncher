@@ -19,6 +19,20 @@ namespace SeerLauncher.Controls
             set => SetValue(TitleProperty, value);
         }
 
+        public static readonly DependencyProperty ShowMinimizeButtonProperty =
+            DependencyProperty.Register(nameof(ShowMinimizeButton), typeof(bool), typeof(CustomTitleBar), new PropertyMetadata(false));
+
+        public bool ShowMinimizeButton
+        {
+            get => (bool)GetValue(ShowMinimizeButtonProperty);
+            set => SetValue(ShowMinimizeButtonProperty, value);
+        }
+
+        private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Window.GetWindow(this).WindowState = WindowState.Minimized;
+        }
+
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
             Window.GetWindow(this)?.Close();

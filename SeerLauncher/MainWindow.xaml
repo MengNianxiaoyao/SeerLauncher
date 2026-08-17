@@ -6,11 +6,11 @@
         MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
         Icon="ico.ico"
         Background="{StaticResource WindowBgBrush}">
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="0"
+        <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="1"
                       UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
     <Window.Resources>
@@ -38,7 +38,7 @@
         </Grid.RowDefinitions>
 
         <!-- 标题栏 -->
-        <controls:CustomTitleBar Grid.Row="0" Title="赛尔号辅助启动器"/>
+        <controls:CustomTitleBar Grid.Row="0" Title="赛尔号辅助启动器" ShowMinimizeButton="True"/>
 
         <!-- 工具栏 -->
         <Border Grid.Row="1" Background="{StaticResource CardBgBrush}"
