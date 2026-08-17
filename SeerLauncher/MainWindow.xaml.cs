@@ -26,6 +26,13 @@ namespace SeerLauncher
             WindowEffects.Apply(this);
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt))
+                e.Handled = true;
+            base.OnPreviewKeyDown(e);
+        }
+
         private void ProgramsList_DragOver(object sender, DragEventArgs e)
         {
             e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop)
