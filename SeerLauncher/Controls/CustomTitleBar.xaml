@@ -10,7 +10,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="12,0,0,0"
-                       FontFamily="宋体" FontSize="14" Foreground="{StaticResource TextBrush}"
+                       FontSize="14" Foreground="{StaticResource TextBrush}"
                        Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
             <Button Grid.Column="1" Style="{StaticResource CaptionCloseButtonStyle}" Content="✕"
                     WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseBtn_Click"/>
