@@ -19,24 +19,24 @@
             <MenuItem x:Name="CtxRefreshProgram" Header="刷新显示"
                       Command="{Binding RefreshDisplayCommand}"/>
             <MenuItem x:Name="CtxAddProgram" Header="添加程序"
-                      Command="{Binding AddProgramCommand}"/>
+                      Command="{Binding Programs.AddCommand}"/>
             <MenuItem x:Name="CtxLaunchProgram" Header="启动程序"
-                      Command="{Binding LaunchProgramCommand}"/>
+                      Command="{Binding Programs.LaunchCommand}"/>
             <MenuItem x:Name="CtxDeleteProgram" Header="删除程序"
-                      Command="{Binding DeleteProgramCommand}"/>
+                      Command="{Binding Programs.DeleteCommand}"/>
             <MenuItem x:Name="CtxOpenDir" Header="打开所在目录"
-                      Command="{Binding OpenDirectoryCommand}"/>
+                      Command="{Binding Programs.OpenDirectoryCommand}"/>
         </ContextMenu>
         <ContextMenu x:Key="KeywordsContextMenu"
                      DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
             <MenuItem x:Name="CtxRefreshKeyword" Header="刷新"
                       Command="{Binding RefreshDisplayCommand}"/>
             <MenuItem x:Name="CtxAddKeyword" Header="添加关键字"
-                      Command="{Binding AddKeywordCommand}"/>
+                      Command="{Binding Keywords.AddCommand}"/>
             <MenuItem x:Name="CtxModifyKeyword" Header="修改关键字"
-                      Command="{Binding ModifyKeywordCommand}"/>
+                      Command="{Binding Keywords.ModifyCommand}"/>
             <MenuItem x:Name="CtxDeleteKeyword" Header="删除关键字"
-                      Command="{Binding DeleteKeywordCommand}"/>
+                      Command="{Binding Keywords.DeleteCommand}"/>
         </ContextMenu>
     </Window.Resources>
 
@@ -66,12 +66,12 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="脱机下载" Margin="6,0,0,0" Command="{Binding AuxiliaryDownloadCommand}"/>
-                <Button Grid.Column="1" Content="检查更新" Margin="6,0,0,0" Command="{Binding CheckUpdateCommand}"/>
-                <Button Grid.Column="2" Content="程序说明" Margin="6,0,0,0" Command="{Binding OpenInstructionsCommand}"/>
-                <Button Grid.Column="3" Content="关于开发者" Margin="6,0,0,0" Command="{Binding OpenBilibiliCommand}"/>
+                <Button Grid.Column="0" Content="脱机下载" Margin="6,0,0,0" Command="{Binding Updates.AuxiliaryDownloadCommand}"/>
+                <Button Grid.Column="1" Content="检查更新" Margin="6,0,0,0" Command="{Binding Updates.CheckUpdateCommand}"/>
+                <Button Grid.Column="2" Content="程序说明" Margin="6,0,0,0" Command="{Binding Updates.OpenInstructionsCommand}"/>
+                <Button Grid.Column="3" Content="关于开发者" Margin="6,0,0,0" Command="{Binding Updates.OpenBilibiliCommand}"/>
                 <Button Grid.Column="4" Content="商店" Style="{StaticResource PrimaryButtonStyle}"
-                        Margin="14,0,0,0" Command="{Binding OpenStoreCommand}"/>
+                        Margin="14,0,0,0" Command="{Binding Updates.OpenStoreCommand}"/>
             </Grid>
         </Border>
 
@@ -95,14 +95,14 @@
                     <TextBlock Grid.Row="0" Text="关键字" FontSize="15" FontWeight="SemiBold"
                                Margin="0,0,0,8" Foreground="{StaticResource TextBrush}"/>
                     <ListBox x:Name="KeywordList" Grid.Row="1"
-                             ItemsSource="{Binding Keywords}"
-                             SelectedItem="{Binding SelectedKeyword}"
+                             ItemsSource="{Binding Keywords.Items}"
+                             SelectedItem="{Binding Keywords.SelectedItem}"
                              ContextMenu="{StaticResource KeywordsContextMenu}"
                              PreviewMouseRightButtonDown="KeywordList_PreviewMouseRightButtonDown"/>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                        <Button Content="添加" Command="{Binding AddKeywordCommand}" Margin="0,0,6,0"/>
-                        <Button Content="修改" Command="{Binding ModifyKeywordCommand}" Margin="0,0,6,0"/>
-                        <Button Content="删除" Command="{Binding DeleteKeywordCommand}"/>
+                        <Button Content="添加" Command="{Binding Keywords.AddCommand}" Margin="0,0,6,0"/>
+                        <Button Content="修改" Command="{Binding Keywords.ModifyCommand}" Margin="0,0,6,0"/>
+                        <Button Content="删除" Command="{Binding Keywords.DeleteCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -119,8 +119,8 @@
                     <TextBlock Grid.Row="0" Text="程序" FontSize="15" FontWeight="SemiBold"
                                Margin="0,0,0,8" Foreground="{StaticResource TextBrush}"/>
                     <ListBox x:Name="ProgramsList" Grid.Row="1"
-                             ItemsSource="{Binding Programs}"
-                             SelectedItem="{Binding SelectedProgram}"
+                             ItemsSource="{Binding Programs.Items}"
+                             SelectedItem="{Binding Programs.SelectedItem}"
                              ContextMenu="{StaticResource ProgramsContextMenu}"
                              AllowDrop="True"
                              DragOver="ProgramsList_DragOver"
@@ -129,10 +129,10 @@
                              PreviewMouseRightButtonDown="ProgramsList_PreviewMouseRightButtonDown"/>
                     <WrapPanel Grid.Row="2" HorizontalAlignment="Right" Margin="0,10,0,0">
                         <Button Content="刷新显示" Command="{Binding RefreshDisplayCommand}" Margin="0,0,6,0"/>
-                        <Button Content="添加程序" Command="{Binding AddProgramCommand}" Margin="0,0,6,0"/>
-                        <Button Content="启动程序" Command="{Binding LaunchProgramCommand}" Margin="0,0,6,0"/>
-                        <Button Content="删除程序" Command="{Binding DeleteProgramCommand}" Margin="0,0,6,0"/>
-                        <Button Content="打开目录" Command="{Binding OpenDirectoryCommand}"/>
+                        <Button Content="添加程序" Command="{Binding Programs.AddCommand}" Margin="0,0,6,0"/>
+                        <Button Content="启动程序" Command="{Binding Programs.LaunchCommand}" Margin="0,0,6,0"/>
+                        <Button Content="删除程序" Command="{Binding Programs.DeleteCommand}" Margin="0,0,6,0"/>
+                        <Button Content="打开目录" Command="{Binding Programs.OpenDirectoryCommand}"/>
                     </WrapPanel>
                 </Grid>
             </Border>
@@ -146,7 +146,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding VersionText}" FontSize="12"
+                <TextBlock Grid.Column="0" Text="{Binding Updates.VersionText}" FontSize="12"
                            Foreground="{StaticResource MutedTextBrush}"/>
                 <TextBlock Grid.Column="1" Text="开发者：梦念逍遥" FontSize="12"
                            Foreground="{StaticResource MutedTextBrush}"/>

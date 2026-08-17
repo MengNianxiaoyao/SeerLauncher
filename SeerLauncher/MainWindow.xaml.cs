@@ -39,13 +39,13 @@ namespace SeerLauncher
         private void ProgramsList_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
-                _viewModel.HandleDroppedFiles(files);
+                _viewModel.Programs.HandleDroppedFiles(files);
         }
 
         private void ProgramsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (ProgramsList.SelectedIndex >= 0 && _viewModel.LaunchProgramCommand.CanExecute(null))
-                _viewModel.LaunchProgramCommand.Execute(null);
+            if (ProgramsList.SelectedIndex >= 0 && _viewModel.Programs.LaunchCommand.CanExecute(null))
+                _viewModel.Programs.LaunchCommand.Execute(null);
         }
 
         private void ProgramsList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
