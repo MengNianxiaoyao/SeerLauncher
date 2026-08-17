@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using SeerLauncher.Mvvm;
 using SeerLauncher.Services;
 
@@ -40,6 +41,8 @@ namespace SeerLauncher.ViewModels
             DeleteProgramCommand = new RelayCommand(DeleteProgram, () => SelectedProgram != null);
             OpenDirectoryCommand = new RelayCommand(OpenDirectory, () => SelectedProgram != null);
             RefreshDisplayCommand = new RelayCommand(RefreshDisplay);
+
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => CheckUpdateAsync(false)), DispatcherPriority.Background);
         }
 
         public ObservableCollection<string> Keywords { get; } = new ObservableCollection<string>();
@@ -271,8 +274,37 @@ var keyword = dialog.InputText;
                 if (fromButton) MessageDialog.Show("检测更新失败", "更新提示");
                 return;
             }
-            if (UpdatePrompter.PromptAndShouldExit(info, fromButton))
-                Application.Current.Shutdown();
+
+            if (string.IsNullOrEmpty(info.Version))
+            {
+                if (fromButton) MessageDialog.Show("检测更新失败", "更新提示");
+                return;
+            }
+
+            if (UpdateService.IsNewer(info.Version, Constants.CurrentVersion))
+            {
+                var message = "检测到新版本，是否更新？" + Environment.NewLine + Environment.NewLine
+                            + "以下是本次更新内容：" + Environment.NewLine + info.Info;
+                if (info.IsForceUpdate)
+                {
+                    if (MessageDialog.Show(message, "更新提示", showCloseButton: false))
+                    {
+                        OpenUrl(info.DownloadUrl);
+                        Application.Current.Shutdown();
+                    }
+                }
+                else
+                {
+                    if (MessageDialog.YesNo(message, "更新提示"))
+                    {
+                        OpenUrl(info.DownloadUrl);
+                    }
+                }
+            }
+            else if (fromButton)
+            {
+                MessageDialog.Show("暂无更新", "更新提示");
+            }
         }
 
         private static void OpenUrl(string url)
