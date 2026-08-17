@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
+using SeerLauncher.Models;
 
 namespace SeerLauncher.Services
 {
@@ -26,6 +29,16 @@ namespace SeerLauncher.Services
 
         public UpdateInfo Fetch(string url)
         {
+            return Parse(DownloadString(url));
+        }
+
+        public List<DownloadLink> FetchLinks(string url)
+        {
+            return ParseLinks(DownloadString(url));
+        }
+
+        private string DownloadString(string url)
+        {
             using (var client = new WebClient())
             {
                 client.Encoding = Encoding.UTF8;
@@ -33,8 +46,7 @@ namespace SeerLauncher.Services
                     client.Headers[HttpRequestHeader.UserAgent] = _userAgent.Substring("user-agent:".Length).TrimStart();
                 else
                     client.Headers[HttpRequestHeader.UserAgent] = _userAgent;
-                var html = client.DownloadString(url);
-                return Parse(html);
+                return client.DownloadString(url);
             }
         }
 
@@ -47,6 +59,34 @@ namespace SeerLauncher.Services
                 Info = Extract(html, "更新信息【", "】更新信息"),
                 ForceUpdate = Extract(html, "强制更新【", "】强制更新")
             };
+        }
+
+        public static List<DownloadLink> ParseLinks(string text)
+        {
+            var list = new List<DownloadLink>();
+            if (string.IsNullOrEmpty(text)) return list;
+            var plain = Regex.Replace(text, @"<[^>]*>", string.Empty);
+            foreach (Match m in Regex.Matches(plain, @"([^【\r\n]+?)【(https?://[^】\r\n]+)】\1"))
+            {
+                var name = m.Groups[1].Value.Trim();
+                if (name.Length == 0 || IsUpdateField(name)) continue;
+                list.Add(new DownloadLink { Name = name, Url = m.Groups[2].Value.Trim() });
+            }
+            return list;
+        }
+
+        private static bool IsUpdateField(string name)
+        {
+            switch (name)
+            {
+                case "下载链接":
+                case "最新版本":
+                case "强制更新":
+                case "更新信息":
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public static string Extract(string text, string start, string end)

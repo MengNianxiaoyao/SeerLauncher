@@ -1,0 +1,63 @@
+<Window x:Class="SeerLauncher.DownloadDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SeerLauncher.Controls"
+        Title="脱机下载" Width="440" SizeToContent="Height"
+        MaxHeight="480"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStyle="None"
+        Background="{StaticResource CardBgBrush}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="1"
+                      ResizeBorderThickness="0"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <controls:CustomTitleBar Grid.Row="0" Title="脱机下载"/>
+        <Grid Grid.Row="1" Margin="20,16,20,18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ListBox Grid.Row="0" ItemsSource="{Binding}" MaxHeight="340" Margin="0,0,0,18">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,0,0,12"/>
+                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center">
+                            <Run Text="{Binding Name, Mode=OneWay}" FontWeight="Bold"/>
+                            <Run Text="下载："/>
+                            <Hyperlink NavigateUri="{Binding Url, Mode=OneWay}" Click="Link_Click"
+                                   TextDecorations="None">
+                                <Run Text="{Binding Url, Mode=OneWay}"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="关闭" Width="80" Height="34" Style="{StaticResource PrimaryButtonStyle}"
+                        Click="OnClose" IsCancel="True"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

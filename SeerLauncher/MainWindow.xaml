@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanMinimize"
-        Icon="ico.ico"
+        Icon="icon.ico"
         Background="{StaticResource WindowBgBrush}">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="1"
@@ -39,7 +39,11 @@
         </Grid.RowDefinitions>
 
         <!-- 标题栏 -->
-        <controls:CustomTitleBar Grid.Row="0" Title="赛尔号辅助启动器" ShowMinimizeButton="True"/>
+        <controls:CustomTitleBar Grid.Row="0" Title="赛尔号辅助启动器" ShowMinimizeButton="True">
+            <controls:CustomTitleBar.Icon>
+                <BitmapImage UriSource="pack://application:,,,/icon.ico" DecodePixelWidth="16"/>
+            </controls:CustomTitleBar.Icon>
+        </controls:CustomTitleBar>
 
         <!-- 工具栏 -->
         <Border Grid.Row="1" Background="{StaticResource CardBgBrush}"
@@ -52,7 +56,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="辅助下载" Margin="6,0,0,0" Click="AuxDownload_Click"/>
+                <Button Grid.Column="0" Content="脱机下载" Margin="6,0,0,0" Click="AuxDownload_Click"/>
                 <Button Grid.Column="1" Content="检查更新" Margin="6,0,0,0" Click="CheckUpdate_Click"/>
                 <Button Grid.Column="2" Content="程序说明" Margin="6,0,0,0" Click="Instructions_Click"/>
                 <Button Grid.Column="3" Content="关于开发者" Margin="6,0,0,0" Click="Developer_Click"/>

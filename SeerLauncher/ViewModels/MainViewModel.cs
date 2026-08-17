@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using SeerLauncher.Mvvm;
+using SeerLauncher.Models;
 using SeerLauncher.Services;
 
 namespace SeerLauncher.ViewModels
@@ -248,12 +249,25 @@ var keyword = dialog.InputText;
             _fileOps.OpenDirectory(string.IsNullOrEmpty(path) ? _runDirectory : path);
         }
 
-        public void AuxiliaryDownload()
+        public async void AuxiliaryDownload()
         {
-            if (MessageDialog.Confirm("点击确认跳转至开发者博客，点击取消跳转至有道云文档", "跳转提示"))
-                OpenUrl(Constants.DeveloperBlog);
-            else
-                OpenUrl(Constants.YoudaoDocs);
+            List<DownloadLink> links;
+            try
+            {
+                links = await Task.Run(() => _updater.FetchLinks(Constants.CheckUrl));
+            }
+            catch
+            {
+                MessageDialog.Show("获取下载链接失败", "操作提示");
+                return;
+            }
+            if (links.Count == 0)
+            {
+                MessageDialog.Show("获取下载链接失败", "操作提示");
+                return;
+            }
+            var dialog = new DownloadDialog(links) { Owner = OwnerWin };
+            dialog.ShowDialog();
         }
 
         public void OpenInstructions() => OpenUrl(Constants.InstructionsUrl);
