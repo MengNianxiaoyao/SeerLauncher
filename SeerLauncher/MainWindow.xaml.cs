@@ -19,8 +19,6 @@ namespace SeerLauncher
             VersionBar.Text = _viewModel.VersionText;
         }
 
-        private void CloseBtn_Click(object sender, RoutedEventArgs e) => Close();
-
         private void ProgramsList_DragOver(object sender, DragEventArgs e)
         {
             e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop)

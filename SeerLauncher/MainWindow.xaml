@@ -1,6 +1,7 @@
 <Window x:Class="SeerLauncher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SeerLauncher.Controls"
         Title="赛尔号辅助启动器" Width="880" Height="600"
         MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
@@ -13,53 +14,6 @@
                       UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
     <Window.Resources>
-        <Style x:Key="CaptionButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#1F2937"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#E5E9F2"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#D5DAE6"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="CaptionCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#E81123"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#B90E1E"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         <ContextMenu x:Key="ProgramsContextMenu">
             <MenuItem x:Name="CtxRefreshProgram" Header="刷新显示" Click="RefreshMenu_Click"/>
             <MenuItem x:Name="CtxAddProgram" Header="添加程序" Click="AddProgramMenu_Click"/>
@@ -84,23 +38,7 @@
         </Grid.RowDefinitions>
 
         <!-- 标题栏 -->
-        <Border Grid.Row="0" Background="{StaticResource CardBgBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="赛尔号辅助启动器" FontFamily="宋体" FontSize="14"
-                           VerticalAlignment="Center" Margin="12,0,0,0"
-                           Foreground="{StaticResource TextBrush}"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                            WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Button Style="{StaticResource CaptionCloseButtonStyle}" Content="✕"
-                            Click="CloseBtn_Click"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <controls:CustomTitleBar Grid.Row="0" Title="赛尔号辅助启动器"/>
 
         <!-- 工具栏 -->
         <Border Grid.Row="1" Background="{StaticResource CardBgBrush}"
