@@ -9,7 +9,7 @@ jobs:
     if: "!startsWith(github.event.head_commit.message, 'chore: v')"
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: microsoft/setup-msbuild@v3
 
@@ -17,7 +17,7 @@ jobs:
         run: msbuild SeerLauncher.sln /restore /p:Configuration=Release
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SeerLauncher
           path: SeerLauncher/bin/Release/net48/*.exe

@@ -27,6 +27,8 @@ namespace SeerLauncher.Services
         
         private AppConfig _config;
 
+        public bool HasCorruptConfig { get; private set; }
+
         public ConfigService(string baseDirectory)
         {
             _baseDirectory = baseDirectory;
@@ -47,6 +49,7 @@ namespace SeerLauncher.Services
 
         public AppConfig Load()
         {
+            HasCorruptConfig = false;
             if (File.Exists(ConfigPath))
             {
                 try
@@ -55,7 +58,8 @@ namespace SeerLauncher.Services
                 }
                 catch (Exception)
                 {
-                    _config = RecoverFromCorruptConfig();
+                    HasCorruptConfig = true;
+                    _config = CreateDefaultConfig(false);
                 }
             }
             else if (File.Exists(IniPath))
@@ -64,43 +68,57 @@ namespace SeerLauncher.Services
             }
             else
             {
-                _config = CreateDefaultConfig();
+                _config = CreateDefaultConfig(true);
             }
             return _config;
         }
 
-        private AppConfig RecoverFromCorruptConfig()
-        {
-            if (File.Exists(IniBackupPath))
-            {
-                if (File.Exists(IniPath)) File.Delete(IniPath);
-                File.Move(IniBackupPath, IniPath);
-                return MigrateFromIni();
-            }
-            return CreateDefaultConfig();
-        }
-
-        private AppConfig CreateDefaultConfig()
+        private AppConfig CreateDefaultConfig(bool save)
         {
             var config = new AppConfig();
             foreach (var keyword in Split(Constants.DefaultKeywords))
                 config.Keywords.Add(keyword);
             _config = config;
-            Save();
+            if (save) Save();
             return config;
         }
 
         public void Save()
         {
             Directory.CreateDirectory(_baseDirectory);
-            File.WriteAllText(ConfigPath, SerializeFormatted(_config), new UTF8Encoding(false));
+            var content = SerializeFormatted(_config);
+            var tempPath = Path.Combine(_baseDirectory, ConfigFileName + "." + Guid.NewGuid().ToString("N") + ".tmp");
+            try
+            {
+                File.WriteAllText(tempPath, content, new UTF8Encoding(false));
+                if (File.Exists(ConfigPath))
+                    File.Replace(tempPath, ConfigPath, null);
+                else
+                    File.Move(tempPath, ConfigPath);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(tempPath)) File.Delete(tempPath);
+                }
+                catch
+                {
+                }
+            }
         }
 
         private AppConfig Deserialize(string json)
         {
             var config = _serializer.Deserialize<AppConfig>(json);
             if (config.Keywords == null) config.Keywords = new List<string>();
-            if (config.Programs == null) config.Programs = new Dictionary<string, string>();
+            var programs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (config.Programs != null)
+            {
+                foreach (var program in config.Programs)
+                    programs[program.Key] = program.Value;
+            }
+            config.Programs = programs;
             return config;
         }
 
@@ -135,7 +153,7 @@ namespace SeerLauncher.Services
 
         public static bool IsValidKeyword(string keyword)
         {
-            if (keyword == null) return false;
+            if (string.IsNullOrWhiteSpace(keyword)) return false;
             const string illegal = "\\/:*?\"<>|";
             foreach (var c in illegal)
                 if (keyword.IndexOf(c) >= 0) return false;

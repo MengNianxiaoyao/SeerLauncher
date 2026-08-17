@@ -28,7 +28,7 @@ namespace SeerLauncher
             else if (isYesNo)
             {
                 AddButton("是", true, false);
-                AddButton("否", false, true);
+                AddButton("否", false, true, dialogResult: false);
             }
             else if (isUpdate)
             {
@@ -39,13 +39,13 @@ namespace SeerLauncher
             {
                 AddButton("确定", true, false);
                 if (showCancel)
-                    AddButton("取消", false, true);
+                    AddButton("取消", false, true, dialogResult: false);
             }
 
             Owner = Application.Current.MainWindow;
         }
 
-        private void AddButton(string content, bool isDefault, bool isCancel, UpdateChoice choice = UpdateChoice.Cancel, double width = 80)
+        private void AddButton(string content, bool isDefault, bool isCancel, UpdateChoice choice = UpdateChoice.Cancel, double width = 80, bool dialogResult = true)
         {
             var btn = new Button
             {
@@ -56,7 +56,7 @@ namespace SeerLauncher
                 IsDefault = isDefault,
                 IsCancel = isCancel
             };
-            btn.Click += (s, e) => { _choice = choice; DialogResult = true; };
+            btn.Click += (s, e) => { _choice = choice; DialogResult = dialogResult; };
             ButtonPanel.Children.Add(btn);
         }
 

@@ -1,4 +1,3 @@
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,7 +14,6 @@ namespace SeerLauncher
             InitializeComponent();
             _viewModel = new MainViewModel();
             DataContext = _viewModel;
-            VersionBar.Text = _viewModel.VersionText;
         }
 
         private void ProgramsList_DragOver(object sender, DragEventArgs e)
@@ -34,8 +32,8 @@ namespace SeerLauncher
 
         private void ProgramsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (ProgramsList.SelectedIndex >= 0)
-                _viewModel.LaunchSelected();
+            if (ProgramsList.SelectedIndex >= 0 && _viewModel.LaunchProgramCommand.CanExecute(null))
+                _viewModel.LaunchProgramCommand.Execute(null);
         }
 
         private void ProgramsList_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -90,20 +88,5 @@ namespace SeerLauncher
             return -1;
         }
 
-        private void AddProgramMenu_Click(object sender, RoutedEventArgs e) => _viewModel.AddProgram();
-        private void LaunchProgramMenu_Click(object sender, RoutedEventArgs e) => _viewModel.LaunchSelected();
-        private void DeleteProgramMenu_Click(object sender, RoutedEventArgs e) => _viewModel.DeleteProgram();
-        private void OpenDirMenu_Click(object sender, RoutedEventArgs e) => _viewModel.OpenDirectory();
-        private void RefreshMenu_Click(object sender, RoutedEventArgs e) => _viewModel.RefreshDisplay();
-
-        private void AddKeywordMenu_Click(object sender, RoutedEventArgs e) => _viewModel.AddKeyword();
-        private void ModifyKeywordMenu_Click(object sender, RoutedEventArgs e) => _viewModel.ModifyKeyword();
-        private void DeleteKeywordMenu_Click(object sender, RoutedEventArgs e) => _viewModel.DeleteKeyword();
-
-        private void AuxDownload_Click(object sender, RoutedEventArgs e) => _viewModel.AuxiliaryDownload();
-        private void CheckUpdate_Click(object sender, RoutedEventArgs e) => _viewModel.CheckUpdateFromButton();
-        private void Instructions_Click(object sender, RoutedEventArgs e) => _viewModel.OpenInstructions();
-        private void Developer_Click(object sender, RoutedEventArgs e) => _viewModel.OpenBilibili();
-        private void Store_Click(object sender, RoutedEventArgs e) => _viewModel.OpenStore();
     }
 }

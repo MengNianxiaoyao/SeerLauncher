@@ -12,7 +12,7 @@ jobs:
     if: "startsWith(github.event.head_commit.message, 'chore: v')"
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: microsoft/setup-msbuild@v3
 
@@ -32,7 +32,7 @@ jobs:
         run: Compress-Archive -Path SeerLauncher/bin/Release/net48/*.exe -DestinationPath SeerLauncher.zip
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}

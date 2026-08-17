@@ -34,6 +34,13 @@ namespace SeerLauncher.ViewModels
             foreach (var keyword in config.Keywords) Keywords.Add(keyword);
             RefreshDisplay();
 
+            if (_configService.HasCorruptConfig)
+            {
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    MessageDialog.Show("配置文件已损坏，当前临时使用默认配置。原文件未被修改，保存新的配置时将覆盖该文件。", "配置警告")),
+                    DispatcherPriority.Loaded);
+            }
+
             AddKeywordCommand = new RelayCommand(AddKeyword);
             ModifyKeywordCommand = new RelayCommand(ModifyKeyword, () => SelectedKeyword != null);
             DeleteKeywordCommand = new RelayCommand(DeleteKeyword, () => SelectedKeyword != null);
@@ -42,6 +49,11 @@ namespace SeerLauncher.ViewModels
             DeleteProgramCommand = new RelayCommand(DeleteProgram, () => SelectedProgram != null);
             OpenDirectoryCommand = new RelayCommand(OpenDirectory, () => SelectedProgram != null);
             RefreshDisplayCommand = new RelayCommand(RefreshDisplay);
+            AuxiliaryDownloadCommand = new RelayCommand(AuxiliaryDownload);
+            CheckUpdateCommand = new RelayCommand(CheckUpdateFromButton);
+            OpenInstructionsCommand = new RelayCommand(OpenInstructions);
+            OpenBilibiliCommand = new RelayCommand(OpenBilibili);
+            OpenStoreCommand = new RelayCommand(OpenStore);
 
             Application.Current.Dispatcher.BeginInvoke(new Action(() => CheckUpdateAsync(false)), DispatcherPriority.Background);
         }
@@ -73,6 +85,11 @@ namespace SeerLauncher.ViewModels
         public ICommand DeleteProgramCommand { get; }
         public ICommand OpenDirectoryCommand { get; }
         public ICommand RefreshDisplayCommand { get; }
+        public ICommand AuxiliaryDownloadCommand { get; }
+        public ICommand CheckUpdateCommand { get; }
+        public ICommand OpenInstructionsCommand { get; }
+        public ICommand OpenBilibiliCommand { get; }
+        public ICommand OpenStoreCommand { get; }
 
         public void RefreshDisplay()
         {
@@ -93,18 +110,20 @@ namespace SeerLauncher.ViewModels
             var dialog = new InputDialog("请输入要添加的关键字", title: "添加关键字") { Owner = OwnerWin };
             if (dialog.ShowDialog() != true) return;
 
-            var keyword = dialog.InputText;
-            if (string.IsNullOrEmpty(keyword))
-            {
-                MessageDialog.Show("添加的关键字不能为空", "操作提示");
-                return;
-            }
+            var keyword = dialog.InputText.Trim();
             if (!ConfigService.IsValidKeyword(keyword))
             {
-                MessageDialog.Show("关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
+                MessageDialog.Show(string.IsNullOrEmpty(keyword)
+                    ? "添加的关键字不能为空"
+                    : "关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
                 return;
             }
-            _configService.Config.Keywords.Add(keyword.Trim());
+            if (_configService.Config.Keywords.Any(item => string.Equals(item, keyword, StringComparison.OrdinalIgnoreCase)))
+            {
+                MessageDialog.Show("该关键字已存在", "操作提示");
+                return;
+            }
+            _configService.Config.Keywords.Add(keyword);
             _configService.Save();
             RefreshDisplay();
         }
@@ -119,18 +138,21 @@ namespace SeerLauncher.ViewModels
             var dialog = new InputDialog("请输入新的关键字", SelectedKeyword, "修改关键字") { Owner = OwnerWin };
             if (dialog.ShowDialog() != true) return;
 
-var keyword = dialog.InputText;
-            if (string.IsNullOrEmpty(keyword))
-            {
-                MessageDialog.Show("新的关键字不能为空", "操作提示");
-                return;
-            }
+            var keyword = dialog.InputText.Trim();
             if (!ConfigService.IsValidKeyword(keyword))
             {
-                MessageDialog.Show("关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
+                MessageDialog.Show(string.IsNullOrEmpty(keyword)
+                    ? "新的关键字不能为空"
+                    : "关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
                 return;
             }
             var index = _configService.Config.Keywords.IndexOf(SelectedKeyword);
+            if (_configService.Config.Keywords.Where((item, itemIndex) => itemIndex != index)
+                .Any(item => string.Equals(item, keyword, StringComparison.OrdinalIgnoreCase)))
+            {
+                MessageDialog.Show("该关键字已存在", "操作提示");
+                return;
+            }
             if (index >= 0) _configService.Config.Keywords[index] = keyword;
             _configService.Save();
             RefreshDisplay();
@@ -230,7 +252,11 @@ var keyword = dialog.InputText;
                 ? Path.Combine(_runDirectory, name)
                 : Path.Combine(path, name);
 
-            _fileOps.DeleteToRecycleBin(fullPath);
+            if (!_fileOps.DeleteToRecycleBin(fullPath))
+            {
+                MessageDialog.Show("删除失败，文件不存在或无法移动到回收站：" + fullPath, "操作提示");
+                return;
+            }
             _configService.Config.Programs.Remove(name);
             _configService.Save();
             RefreshDisplay();

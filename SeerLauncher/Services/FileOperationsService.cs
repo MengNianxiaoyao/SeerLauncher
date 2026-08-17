@@ -44,6 +44,7 @@ namespace SeerLauncher.Services
 
         public static void OpenUrl(string url)
         {
+            if (!IsSafeUrl(url)) return;
             try
             {
                 Process.Start(url);
@@ -51,6 +52,16 @@ namespace SeerLauncher.Services
             catch
             {
             }
+        }
+
+        public static bool IsSafeUrl(string url)
+        {
+            Uri uri;
+            return Uri.TryCreate(url, UriKind.Absolute, out uri)
+                && uri.Scheme == Uri.UriSchemeHttps
+                && !string.IsNullOrEmpty(uri.Host)
+                && string.IsNullOrEmpty(uri.UserInfo)
+                && uri.IsDefaultPort;
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,6 +20,7 @@ namespace SeerLauncher.Services
 
     public class UpdateService
     {
+        private const int RequestTimeoutMilliseconds = 15000;
         private readonly string _userAgent;
 
         public UpdateService(string userAgent)
@@ -38,7 +40,10 @@ namespace SeerLauncher.Services
 
         private string DownloadString(string url)
         {
-            using (var client = new WebClient())
+            if (!FileOperationsService.IsSafeUrl(url))
+                throw new InvalidDataException("Update URL must use HTTPS.");
+
+            using (var client = new TimeoutWebClient())
             {
                 client.Encoding = Encoding.UTF8;
                 if (_userAgent.StartsWith("user-agent:", StringComparison.OrdinalIgnoreCase))
@@ -78,7 +83,9 @@ namespace SeerLauncher.Services
             foreach (var kv in data.Tools)
             {
                 if (string.IsNullOrWhiteSpace(kv.Key) || string.IsNullOrWhiteSpace(kv.Value)) continue;
-                list.Add(new DownloadLink { Name = kv.Key.Trim(), Url = CleanUrl(kv.Value) });
+                var url = CleanUrl(kv.Value);
+                if (url == null) continue;
+                list.Add(new DownloadLink { Name = kv.Key.Trim(), Url = url });
             }
             return list;
         }
@@ -95,8 +102,21 @@ namespace SeerLauncher.Services
 
         private static string CleanUrl(string url)
         {
-            if (string.IsNullOrEmpty(url)) return url;
-            return url.Replace("\u00A0", string.Empty).Replace(" ", string.Empty);
+            if (string.IsNullOrEmpty(url)) return null;
+            var cleaned = url.Replace("\u00A0", string.Empty).Replace(" ", string.Empty);
+            return FileOperationsService.IsSafeUrl(cleaned) ? cleaned : null;
+        }
+
+        private sealed class TimeoutWebClient : WebClient
+        {
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                var request = base.GetWebRequest(address);
+                request.Timeout = RequestTimeoutMilliseconds;
+                if (request is HttpWebRequest httpRequest)
+                    httpRequest.ReadWriteTimeout = RequestTimeoutMilliseconds;
+                return request;
+            }
         }
 
         private class UpdateJson

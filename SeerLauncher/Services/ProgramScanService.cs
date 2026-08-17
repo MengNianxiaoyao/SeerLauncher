@@ -32,8 +32,9 @@ namespace SeerLauncher.Services
         public List<string> MergeConfiguredAndScanned(IList<string> configured, IList<string> scanned)
         {
             var result = new List<string>(configured);
+            var names = new HashSet<string>(configured, StringComparer.OrdinalIgnoreCase);
             foreach (var item in scanned)
-                if (!result.Contains(item))
+                if (names.Add(item))
                     result.Add(item);
             return result;
         }

@@ -15,7 +15,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <controls:CustomTitleBar x:Name="TitleBar" Grid.Row="0" Title="操作提示"/>
+        <controls:CustomTitleBar x:Name="TitleBar" Grid.Row="0"
+                                 Title="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"/>
         <Grid Grid.Row="1" Margin="20,16,20,18">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
