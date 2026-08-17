@@ -201,12 +201,22 @@
                         <Grid Background="Transparent">
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}"
-                                                  Focusable="False" Background="Transparent" BorderThickness="0"/>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="Transparent"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
                                 </Track.DecreaseRepeatButton>
                                 <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}"
-                                                  Focusable="False" Background="Transparent" BorderThickness="0"/>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="Transparent"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
                                 </Track.IncreaseRepeatButton>
                                 <Track.Thumb>
                                     <Thumb>
