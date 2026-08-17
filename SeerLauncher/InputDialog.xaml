@@ -5,7 +5,7 @@
         Title="输入" Width="400" Height="200"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         WindowStyle="None"
-        Background="{StaticResource WindowBgBrush}">
+        Background="{StaticResource CardBgBrush}">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="1"
                       UseAeroCaptionButtons="False"/>
@@ -15,17 +15,20 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <controls:CustomTitleBar Grid.Row="0" Title="输入"/>
-        <Grid Grid.Row="1" Margin="18">
+        <controls:CustomTitleBar Grid.Row="0" Title="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"/>
+        <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock x:Name="PromptText" Grid.Row="0" Margin="0,0,0,10" FontSize="13" Foreground="{StaticResource TextBrush}"/>
-            <TextBox x:Name="InputBox" Grid.Row="1" FontSize="14" VerticalContentAlignment="Center" Padding="8,4"/>
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                <Button Content="确定" Width="80" Height="34" Click="OnOk" IsDefault="True"/>
+            <TextBlock x:Name="PromptText" Grid.Row="0" Margin="0,0,0,12"
+                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+            <TextBox x:Name="InputBox" Grid.Row="1" FontSize="14" VerticalContentAlignment="Center"
+                     Padding="8,4"/>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                <Button Content="确定" Width="80" Height="34" Style="{StaticResource PrimaryButtonStyle}"
+                        Click="OnOk" IsDefault="True"/>
                 <Button Content="取消" Width="80" Height="34" Margin="10,0,0,0" Click="OnCancel" IsCancel="True"/>
             </StackPanel>
         </Grid>

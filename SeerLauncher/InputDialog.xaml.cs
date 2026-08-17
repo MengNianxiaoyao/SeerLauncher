@@ -6,9 +6,10 @@ namespace SeerLauncher
 {
     public partial class InputDialog : Window
     {
-        public InputDialog(string prompt, string defaultValue = "")
+        public InputDialog(string prompt, string defaultValue = "", string title = "输入")
         {
             InitializeComponent();
+            Title = title;
             PromptText.Text = prompt;
             InputBox.Text = defaultValue;
             InputBox.SelectAll();

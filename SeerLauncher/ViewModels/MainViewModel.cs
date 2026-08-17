@@ -89,7 +89,7 @@ namespace SeerLauncher.ViewModels
 
         public void AddKeyword()
         {
-            var dialog = new InputDialog("请输入要添加的关键字") { Owner = OwnerWin };
+            var dialog = new InputDialog("请输入要添加的关键字", title: "添加关键字") { Owner = OwnerWin };
             if (dialog.ShowDialog() != true) return;
 
             var keyword = dialog.InputText;
@@ -115,7 +115,7 @@ namespace SeerLauncher.ViewModels
                 MessageDialog.Show("请选择需要修改的关键字", "操作提示");
                 return;
             }
-            var dialog = new InputDialog("请输入新的关键字", SelectedKeyword) { Owner = OwnerWin };
+            var dialog = new InputDialog("请输入新的关键字", SelectedKeyword, "修改关键字") { Owner = OwnerWin };
             if (dialog.ShowDialog() != true) return;
 
 var keyword = dialog.InputText;
