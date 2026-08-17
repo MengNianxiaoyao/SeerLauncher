@@ -11,6 +11,7 @@
         Background="{StaticResource WindowBgBrush}">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="1"
+                      ResizeBorderThickness="0"
                       UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
     <Window.Resources>
