@@ -4,9 +4,61 @@
         Title="赛尔号辅助启动器" Width="880" Height="600"
         MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
         Icon="ico.ico"
         Background="{StaticResource WindowBgBrush}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="0"
+                      ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
     <Window.Resources>
+        <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#E5E9F2"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#D5DAE6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CaptionCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#E81123"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#B90E1E"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <ContextMenu x:Key="ProgramsContextMenu">
             <MenuItem x:Name="CtxRefreshProgram" Header="刷新显示" Click="RefreshMenu_Click"/>
             <MenuItem x:Name="CtxAddProgram" Header="添加程序" Click="AddProgramMenu_Click"/>
@@ -24,36 +76,57 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 工具栏 -->
+        <!-- 标题栏 -->
         <Border Grid.Row="0" Background="{StaticResource CardBgBrush}"
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,8">
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="赛尔号辅助启动器" FontFamily="宋体" FontSize="14"
+                           VerticalAlignment="Center" Margin="12,0,0,0"
+                           Foreground="{StaticResource TextBrush}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Style="{StaticResource CaptionButtonStyle}" Content="─"
+                            Click="MinimizeBtn_Click"/>
+                    <Button x:Name="MaxBtn" Style="{StaticResource CaptionButtonStyle}" Content="□"
+                            Click="MaxBtn_Click"/>
+                    <Button Style="{StaticResource CaptionCloseButtonStyle}" Content="✕"
+                            Click="CloseBtn_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 工具栏 -->
+        <Border Grid.Row="1" Background="{StaticResource CardBgBrush}"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="赛尔号辅助启动器" FontSize="16" FontWeight="Bold"
-                           VerticalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
-                <Button Grid.Column="1" Content="辅助下载" Margin="6,0,0,0" Click="AuxDownload_Click"/>
-                <Button Grid.Column="2" Content="检查更新" Margin="6,0,0,0" Click="CheckUpdate_Click"/>
-                <Button Grid.Column="3" Content="程序说明" Margin="6,0,0,0" Click="Instructions_Click"/>
-                <Button Grid.Column="4" Content="关于开发者" Margin="6,0,0,0" Click="Developer_Click"/>
-                <Button Grid.Column="5" Content="商店" Style="{StaticResource PrimaryButtonStyle}"
+                <Button Grid.Column="0" Content="辅助下载" Margin="6,0,0,0" Click="AuxDownload_Click"/>
+                <Button Grid.Column="1" Content="检查更新" Margin="6,0,0,0" Click="CheckUpdate_Click"/>
+                <Button Grid.Column="2" Content="程序说明" Margin="6,0,0,0" Click="Instructions_Click"/>
+                <Button Grid.Column="3" Content="关于开发者" Margin="6,0,0,0" Click="Developer_Click"/>
+                <Button Grid.Column="4" Content="商店" Style="{StaticResource PrimaryButtonStyle}"
                         Margin="14,0,0,0" Click="Store_Click"/>
             </Grid>
         </Border>
 
         <!-- 内容区 -->
-        <Grid Grid.Row="1" Margin="12">
+        <Grid Grid.Row="2" Margin="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="14"/>
@@ -116,7 +189,7 @@
         </Grid>
 
         <!-- 状态栏 -->
-        <Border Grid.Row="2" Background="{StaticResource CardBgBrush}"
+        <Border Grid.Row="3" Background="{StaticResource CardBgBrush}"
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="12,5">
             <Grid>
                 <Grid.ColumnDefinitions>
