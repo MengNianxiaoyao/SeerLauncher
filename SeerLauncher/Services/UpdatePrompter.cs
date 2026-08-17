@@ -22,7 +22,7 @@ namespace SeerLauncher.Services
 
             if (info.IsForceUpdate)
             {
-                MessageDialog.Show(message, "更新提示");
+                MessageDialog.Show(message, "更新提示", showCloseButton: false);
                 OpenUrl(info.DownloadUrl);
                 return true;
             }

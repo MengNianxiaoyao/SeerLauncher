@@ -8,10 +8,11 @@ namespace SeerLauncher
 {
     public partial class MessageDialog : Window
     {
-        private MessageDialog(string message, string caption, bool showCancel, bool isYesNo, bool isInfo)
+        private MessageDialog(string message, string caption, bool showCancel, bool isYesNo, bool isInfo, bool showCloseButton = true)
         {
             InitializeComponent();
             Title = caption;
+            TitleBar.ShowCloseButton = showCloseButton;
             MessageText.Text = message;
 
             if (isInfo)
@@ -61,9 +62,9 @@ namespace SeerLauncher
             ButtonPanel.Children.Add(btn);
         }
 
-        public static bool Show(string message, string caption = "操作提示")
+        public static bool Show(string message, string caption = "操作提示", bool showCloseButton = true)
         {
-            var dialog = new MessageDialog(message, caption, false, false, true);
+            var dialog = new MessageDialog(message, caption, false, false, true, showCloseButton);
             return dialog.ShowDialog() == true;
         }
 

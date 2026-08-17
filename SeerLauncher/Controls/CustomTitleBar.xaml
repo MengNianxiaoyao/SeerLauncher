@@ -20,7 +20,8 @@
                         WindowChrome.IsHitTestVisibleInChrome="True" Click="MinimizeBtn_Click"
                         Visibility="{Binding ShowMinimizeButton, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
                 <Button Style="{StaticResource CaptionCloseButtonStyle}" Content="✕"
-                        WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseBtn_Click"/>
+                        WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseBtn_Click"
+                        Visibility="{Binding ShowCloseButton, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
         </Grid>
     </Border>
