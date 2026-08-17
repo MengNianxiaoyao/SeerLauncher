@@ -13,6 +13,9 @@
     <AssemblyCompany>梦念逍遥</AssemblyCompany>
     <AssemblyProduct>赛尔号辅助启动器</AssemblyProduct>
     <AssemblyCopyright>Copyright © 2026 梦念逍遥</AssemblyCopyright>
+    <Version>2.3.7</Version>
+    <InformationalVersion>2.3.7</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <AssemblyVersion>2.3.7.0</AssemblyVersion>
     <AssemblyFileVersion>2.3.7.0</AssemblyFileVersion>
     <NeutralResourcesLanguage>zh-CN</NeutralResourcesLanguage>
