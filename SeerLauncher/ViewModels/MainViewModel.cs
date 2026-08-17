@@ -4,9 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 using SeerLauncher.Mvvm;
 using SeerLauncher.Models;
 using SeerLauncher.Services;
@@ -19,12 +17,17 @@ namespace SeerLauncher.ViewModels
         private readonly ProgramScanService _scanner = new ProgramScanService();
         private readonly UpdateService _updater;
         private readonly FileOperationsService _fileOps = new FileOperationsService();
+        private readonly IUiService _ui;
         private readonly string _runDirectory;
         private readonly string _selfName;
-        private static Window OwnerWin => Application.Current.MainWindow;
 
-        public MainViewModel()
+        public MainViewModel() : this(new WpfUiService())
         {
+        }
+
+        public MainViewModel(IUiService uiService)
+        {
+            _ui = uiService ?? throw new ArgumentNullException(nameof(uiService));
             _runDirectory = AppDomain.CurrentDomain.BaseDirectory;
             _selfName = System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".exe";
             _configService = new ConfigService(_runDirectory);
@@ -36,9 +39,8 @@ namespace SeerLauncher.ViewModels
 
             if (_configService.HasCorruptConfig)
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                    MessageDialog.Show("配置文件已损坏，当前临时使用默认配置。原文件未被修改，保存新的配置时将覆盖该文件。", "配置警告")),
-                    DispatcherPriority.Loaded);
+                _ui.RunOnLoaded(() =>
+                    _ui.ShowMessage("配置文件已损坏，当前临时使用默认配置。原文件未被修改，保存新的配置时将覆盖该文件。", "配置警告"));
             }
 
             AddKeywordCommand = new RelayCommand(AddKeyword);
@@ -47,7 +49,7 @@ namespace SeerLauncher.ViewModels
             AddProgramCommand = new RelayCommand(AddProgram);
             LaunchProgramCommand = new RelayCommand(LaunchSelected, () => SelectedProgram != null);
             DeleteProgramCommand = new RelayCommand(DeleteProgram, () => SelectedProgram != null);
-            OpenDirectoryCommand = new RelayCommand(OpenDirectory, () => SelectedProgram != null);
+            OpenDirectoryCommand = new RelayCommand(OpenDirectory);
             RefreshDisplayCommand = new RelayCommand(RefreshDisplay);
             AuxiliaryDownloadCommand = new RelayCommand(AuxiliaryDownload);
             CheckUpdateCommand = new RelayCommand(CheckUpdateFromButton);
@@ -55,7 +57,7 @@ namespace SeerLauncher.ViewModels
             OpenBilibiliCommand = new RelayCommand(OpenBilibili);
             OpenStoreCommand = new RelayCommand(OpenStore);
 
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => CheckUpdateAsync(false)), DispatcherPriority.Background);
+            _ui.RunInBackground(() => CheckUpdateAsync(false));
         }
 
         public ObservableCollection<string> Keywords { get; } = new ObservableCollection<string>();
@@ -91,7 +93,7 @@ namespace SeerLauncher.ViewModels
         public ICommand OpenBilibiliCommand { get; }
         public ICommand OpenStoreCommand { get; }
 
-        public void RefreshDisplay()
+        private void RefreshDisplay()
         {
             var config = _configService.Config;
             var configured = new List<string>(config.Programs.Keys);
@@ -105,22 +107,21 @@ namespace SeerLauncher.ViewModels
                 Programs.Add(item);
         }
 
-        public void AddKeyword()
+        private void AddKeyword()
         {
-            var dialog = new InputDialog("请输入要添加的关键字", title: "添加关键字") { Owner = OwnerWin };
-            if (dialog.ShowDialog() != true) return;
-
-            var keyword = dialog.InputText.Trim();
+            var input = _ui.Prompt("请输入要添加的关键字", "", "添加关键字");
+            if (input == null) return;
+            var keyword = input.Trim();
             if (!ConfigService.IsValidKeyword(keyword))
             {
-                MessageDialog.Show(string.IsNullOrEmpty(keyword)
+                _ui.ShowMessage(string.IsNullOrEmpty(keyword)
                     ? "添加的关键字不能为空"
                     : "关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
                 return;
             }
             if (_configService.Config.Keywords.Any(item => string.Equals(item, keyword, StringComparison.OrdinalIgnoreCase)))
             {
-                MessageDialog.Show("该关键字已存在", "操作提示");
+                _ui.ShowMessage("该关键字已存在", "操作提示");
                 return;
             }
             _configService.Config.Keywords.Add(keyword);
@@ -128,20 +129,14 @@ namespace SeerLauncher.ViewModels
             RefreshDisplay();
         }
 
-        public void ModifyKeyword()
+        private void ModifyKeyword()
         {
-            if (SelectedKeyword == null)
-            {
-                MessageDialog.Show("请选择需要修改的关键字", "操作提示");
-                return;
-            }
-            var dialog = new InputDialog("请输入新的关键字", SelectedKeyword, "修改关键字") { Owner = OwnerWin };
-            if (dialog.ShowDialog() != true) return;
-
-            var keyword = dialog.InputText.Trim();
+            var input = _ui.Prompt("请输入新的关键字", SelectedKeyword, "修改关键字");
+            if (input == null) return;
+            var keyword = input.Trim();
             if (!ConfigService.IsValidKeyword(keyword))
             {
-                MessageDialog.Show(string.IsNullOrEmpty(keyword)
+                _ui.ShowMessage(string.IsNullOrEmpty(keyword)
                     ? "新的关键字不能为空"
                     : "关键字不能包含下列任何字符：" + Environment.NewLine + "\\/:*?\"" + "<>|", "操作提示");
                 return;
@@ -150,7 +145,7 @@ namespace SeerLauncher.ViewModels
             if (_configService.Config.Keywords.Where((item, itemIndex) => itemIndex != index)
                 .Any(item => string.Equals(item, keyword, StringComparison.OrdinalIgnoreCase)))
             {
-                MessageDialog.Show("该关键字已存在", "操作提示");
+                _ui.ShowMessage("该关键字已存在", "操作提示");
                 return;
             }
             if (index >= 0) _configService.Config.Keywords[index] = keyword;
@@ -158,32 +153,22 @@ namespace SeerLauncher.ViewModels
             RefreshDisplay();
         }
 
-        public void DeleteKeyword()
+        private void DeleteKeyword()
         {
-            if (SelectedKeyword == null)
-            {
-                MessageDialog.Show("请选择需要删除的关键字", "操作提示");
-                return;
-            }
-            if (!MessageDialog.Confirm("是否删除此关键字？")) return;
+            if (!_ui.Confirm("是否删除此关键字？")) return;
 
             _configService.Config.Keywords.Remove(SelectedKeyword);
             _configService.Save();
             RefreshDisplay();
         }
 
-        public void AddProgram()
+        private void AddProgram()
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "可执行文件 (*.exe)|*.exe",
-                Title = "选择程序"
-            };
-            if (dialog.ShowDialog() == true)
-                AddProgramFile(dialog.FileName);
+            var fullPath = _ui.SelectExecutable();
+            if (fullPath != null) AddProgramFile(fullPath);
         }
 
-        public void AddProgramFile(string fullPath)
+        private void AddProgramFile(string fullPath)
         {
             var name = Path.GetFileName(fullPath);
             if (!name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
@@ -209,23 +194,18 @@ namespace SeerLauncher.ViewModels
                 var name = Path.GetFileName(file);
                 if (!name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    MessageDialog.Show("添加的文件不是可执行文件", "操作提示");
+                    _ui.ShowMessage("添加的文件不是可执行文件", "操作提示");
                     continue;
                 }
-                if (MessageDialog.Confirm("是否添加《" + name + "》？"))
+                if (_ui.Confirm("是否添加《" + name + "》？"))
                 {
                     AddProgramFile(file);
                 }
             }
         }
 
-        public void LaunchSelected()
+        private void LaunchSelected()
         {
-            if (SelectedProgram == null)
-            {
-                MessageDialog.Show("请选择要启动的程序", "操作提示");
-                return;
-            }
             var name = SelectedProgram;
             string path;
             _configService.Config.Programs.TryGetValue(name, out path);
@@ -233,18 +213,13 @@ namespace SeerLauncher.ViewModels
                 ? Path.Combine(_runDirectory, name)
                 : Path.Combine(path, name);
             if (!_fileOps.Launch(fullPath))
-                MessageDialog.Show("启动失败，文件不存在：" + fullPath, "操作提示");
+                _ui.ShowMessage("启动失败，文件不存在：" + fullPath, "操作提示");
         }
 
-        public void DeleteProgram()
+        private void DeleteProgram()
         {
-            if (SelectedProgram == null)
-            {
-                MessageDialog.Show("请选择要删除的程序", "操作提示");
-                return;
-            }
             var name = SelectedProgram;
-            if (!MessageDialog.Confirm("是否将《" + name + "》移动到回收站？")) return;
+            if (!_ui.Confirm("是否将《" + name + "》移动到回收站？")) return;
 
             string path;
             _configService.Config.Programs.TryGetValue(name, out path);
@@ -254,7 +229,7 @@ namespace SeerLauncher.ViewModels
 
             if (!_fileOps.DeleteToRecycleBin(fullPath))
             {
-                MessageDialog.Show("删除失败，文件不存在或无法移动到回收站：" + fullPath, "操作提示");
+                _ui.ShowMessage("删除失败，文件不存在或无法移动到回收站：" + fullPath, "操作提示");
                 return;
             }
             _configService.Config.Programs.Remove(name);
@@ -262,20 +237,20 @@ namespace SeerLauncher.ViewModels
             RefreshDisplay();
         }
 
-        public void OpenDirectory()
+        private void OpenDirectory()
         {
             if (SelectedProgram == null)
             {
-                _fileOps.OpenDirectory(_runDirectory);
+                _ui.OpenDirectory(_runDirectory);
                 return;
             }
             var name = SelectedProgram;
             string path;
             _configService.Config.Programs.TryGetValue(name, out path);
-            _fileOps.OpenDirectory(string.IsNullOrEmpty(path) ? _runDirectory : path);
+            _ui.OpenDirectory(string.IsNullOrEmpty(path) ? _runDirectory : path);
         }
 
-        public async void AuxiliaryDownload()
+        private async void AuxiliaryDownload()
         {
             List<DownloadLink> links;
             try
@@ -284,23 +259,22 @@ namespace SeerLauncher.ViewModels
             }
             catch
             {
-                MessageDialog.Show("获取下载链接失败", "操作提示");
+                _ui.ShowMessage("获取下载链接失败", "操作提示");
                 return;
             }
             if (links.Count == 0)
             {
-                MessageDialog.Show("获取下载链接失败", "操作提示");
+                _ui.ShowMessage("获取下载链接失败", "操作提示");
                 return;
             }
-            var dialog = new DownloadDialog(links) { Owner = OwnerWin };
-            dialog.ShowDialog();
+            _ui.ShowDownloadLinks(links);
         }
 
-        public void OpenInstructions() => FileOperationsService.OpenUrl(Constants.InstructionsUrl);
-        public void OpenBilibili() => FileOperationsService.OpenUrl(Constants.DeveloperBilibili);
-        public void OpenStore() => FileOperationsService.OpenUrl(Constants.StoreUrl);
+        private void OpenInstructions() => _ui.OpenUrl(Constants.InstructionsUrl);
+        private void OpenBilibili() => _ui.OpenUrl(Constants.DeveloperBilibili);
+        private void OpenStore() => _ui.OpenUrl(Constants.StoreUrl);
 
-        public void CheckUpdateFromButton() => CheckUpdateAsync(true);
+        private void CheckUpdateFromButton() => CheckUpdateAsync(true);
 
         private async void CheckUpdateAsync(bool fromButton)
         {
@@ -311,13 +285,13 @@ namespace SeerLauncher.ViewModels
             }
             catch
             {
-                if (fromButton) MessageDialog.Show("检测更新失败", "更新提示");
+                if (fromButton) _ui.ShowMessage("检测更新失败", "更新提示");
                 return;
             }
 
             if (string.IsNullOrEmpty(info.Version))
             {
-                if (fromButton) MessageDialog.Show("检测更新失败", "更新提示");
+                if (fromButton) _ui.ShowMessage("检测更新失败", "更新提示");
                 return;
             }
 
@@ -325,19 +299,19 @@ namespace SeerLauncher.ViewModels
             {
                 var message = "检测到新版本，是否更新？" + Environment.NewLine + Environment.NewLine
                             + "以下是本次更新内容：" + Environment.NewLine + info.Info;
-                var choice = MessageDialog.ShowUpdate(message, "更新提示", showCloseButton: !info.IsForceUpdate);
+                var choice = _ui.ShowUpdate(message, "更新提示", showCloseButton: !info.IsForceUpdate);
                 if (choice == UpdateChoice.Cancel)
                 {
-                    if (info.IsForceUpdate) Application.Current.Shutdown();
+                    if (info.IsForceUpdate) _ui.Shutdown();
                     return;
                 }
                 var url = choice == UpdateChoice.Global ? info.GlobalUrl : info.CnUrl;
-                if (!string.IsNullOrEmpty(url)) FileOperationsService.OpenUrl(url);
-                if (info.IsForceUpdate) Application.Current.Shutdown();
+                if (!string.IsNullOrEmpty(url)) _ui.OpenUrl(url);
+                if (info.IsForceUpdate) _ui.Shutdown();
             }
             else if (fromButton)
             {
-                MessageDialog.Show("暂无更新", "更新提示");
+                _ui.ShowMessage("暂无更新", "更新提示");
             }
         }
     }
