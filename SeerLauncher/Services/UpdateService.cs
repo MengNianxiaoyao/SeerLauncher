@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web.Script.Serialization;
 using SeerLauncher.Models;
 
 namespace SeerLauncher.Services
@@ -10,12 +11,10 @@ namespace SeerLauncher.Services
     public class UpdateInfo
     {
         public string Version { get; set; }
-        public string DownloadUrl { get; set; }
+        public string GlobalUrl { get; set; }
+        public string CnUrl { get; set; }
         public string Info { get; set; }
-        public string ForceUpdate { get; set; }
-
-        public bool IsForceUpdate =>
-            string.Equals(ForceUpdate, "是", StringComparison.Ordinal);
+        public bool IsForceUpdate { get; set; }
     }
 
     public class UpdateService
@@ -50,54 +49,73 @@ namespace SeerLauncher.Services
             }
         }
 
-        public UpdateInfo Parse(string html)
+        public UpdateInfo Parse(string json)
         {
+            var data = ParseJson(json);
             return new UpdateInfo
             {
-                Version = Extract(html, "最新版本【", "】最新版本"),
-                DownloadUrl = Extract(html, "下载链接【", "】下载链接"),
-                Info = Extract(html, "更新信息【", "】更新信息"),
-                ForceUpdate = Extract(html, "强制更新【", "】强制更新")
+                Version = data.Version,
+                GlobalUrl = CleanUrl(data.CheckLink?.Global),
+                CnUrl = CleanUrl(data.CheckLink?.Cn),
+                Info = data.Info,
+                IsForceUpdate = data.Force
             };
         }
 
-        public static List<DownloadLink> ParseLinks(string text)
+        public static List<DownloadLink> ParseLinks(string json)
         {
             var list = new List<DownloadLink>();
-            if (string.IsNullOrEmpty(text)) return list;
-            var plain = Regex.Replace(text, @"<[^>]*>", string.Empty);
-            foreach (Match m in Regex.Matches(plain, @"([^【\r\n]+?)【(https?://[^】\r\n]+)】\1"))
+            UpdateJson data;
+            try
             {
-                var name = m.Groups[1].Value.Trim();
-                if (name.Length == 0 || IsUpdateField(name)) continue;
-                list.Add(new DownloadLink { Name = name, Url = m.Groups[2].Value.Trim() });
+                data = ParseJson(json);
+            }
+            catch
+            {
+                return list;
+            }
+            if (data.Tools == null) return list;
+            foreach (var kv in data.Tools)
+            {
+                if (string.IsNullOrWhiteSpace(kv.Key) || string.IsNullOrWhiteSpace(kv.Value)) continue;
+                list.Add(new DownloadLink { Name = kv.Key.Trim(), Url = CleanUrl(kv.Value) });
             }
             return list;
         }
 
-        private static bool IsUpdateField(string name)
+        private static UpdateJson ParseJson(string json)
         {
-            switch (name)
-            {
-                case "下载链接":
-                case "最新版本":
-                case "强制更新":
-                case "更新信息":
-                    return true;
-                default:
-                    return false;
-            }
+            var outer = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(json);
+            if (outer == null || !outer.TryGetValue("content", out var value))
+                throw new InvalidOperationException("content not found");
+            var plain = Regex.Replace(Convert.ToString(value), @"<[^>]*>", string.Empty);
+            var content = WebUtility.HtmlDecode(plain).Trim();
+            return new JavaScriptSerializer().Deserialize<UpdateJson>(content);
         }
 
-        public static string Extract(string text, string start, string end)
+        private static string CleanUrl(string url)
         {
-            if (string.IsNullOrEmpty(text)) return "";
-            var startIndex = text.IndexOf(start, StringComparison.Ordinal);
-            if (startIndex < 0) return "";
-            startIndex += start.Length;
-            var endIndex = text.IndexOf(end, startIndex, StringComparison.Ordinal);
-            if (endIndex < 0) return "";
-            return text.Substring(startIndex, endIndex - startIndex);
+            if (string.IsNullOrEmpty(url)) return url;
+            return url.Replace("\u00A0", string.Empty).Replace(" ", string.Empty);
+        }
+
+        private class UpdateJson
+        {
+            public UpdateJson() { }
+
+            public CheckLinkJson CheckLink { get; set; }
+            public string Version { get; set; }
+            public bool Force { get; set; }
+            public string Info { get; set; }
+            public Dictionary<string, string> Tools { get; set; }
+        }
+
+        private class CheckLinkJson
+        {
+            public CheckLinkJson() { }
+
+            public string Global { get; set; }
+            public string Cn { get; set; }
         }
 
         public static int ToVersionInt(string version)

@@ -1,14 +1,20 @@
-using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using SeerLauncher.Controls;
 
 namespace SeerLauncher
 {
-    public partial class MessageDialog : Window
+    public enum UpdateChoice
     {
-        private MessageDialog(string message, string caption, bool showCancel, bool isYesNo, bool isInfo, bool showCloseButton = true)
+        Cancel,
+        Global,
+        Cn
+    }
+
+    public partial class MessageDialog : BaseWindow
+    {
+        private UpdateChoice _choice = UpdateChoice.Cancel;
+
+        private MessageDialog(string message, string caption, bool showCancel, bool isYesNo, bool isInfo, bool isUpdate, bool showCloseButton = true)
         {
             InitializeComponent();
             Title = caption;
@@ -24,6 +30,11 @@ namespace SeerLauncher
                 AddButton("是", true, false);
                 AddButton("否", false, true);
             }
+            else if (isUpdate)
+            {
+                AddButton("GitHub", true, false, UpdateChoice.Global, 100);
+                AddButton("网盘下载", false, true, UpdateChoice.Cn, 100);
+            }
             else
             {
                 AddButton("确定", true, false);
@@ -34,50 +45,43 @@ namespace SeerLauncher
             Owner = Application.Current.MainWindow;
         }
 
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            WindowEffects.Apply(this);
-        }
-
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
-            if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt))
-                e.Handled = true;
-            base.OnPreviewKeyDown(e);
-        }
-
-        private void AddButton(string content, bool isDefault, bool isCancel)
+        private void AddButton(string content, bool isDefault, bool isCancel, UpdateChoice choice = UpdateChoice.Cancel, double width = 80)
         {
             var btn = new Button
             {
                 Content = content,
-                Width = 80,
+                Width = width,
                 Height = 34,
                 Margin = new Thickness(isDefault ? 0 : 10, 0, 0, 0),
                 IsDefault = isDefault,
                 IsCancel = isCancel
             };
-            btn.Click += (s, e) => { DialogResult = isDefault; };
+            btn.Click += (s, e) => { _choice = choice; DialogResult = true; };
             ButtonPanel.Children.Add(btn);
         }
 
         public static bool Show(string message, string caption = "操作提示", bool showCloseButton = true)
         {
-            var dialog = new MessageDialog(message, caption, false, false, true, showCloseButton);
+            var dialog = new MessageDialog(message, caption, false, false, true, false, showCloseButton);
             return dialog.ShowDialog() == true;
         }
 
         public static bool Confirm(string message, string caption = "操作提示")
         {
-            var dialog = new MessageDialog(message, caption, true, false, false);
+            var dialog = new MessageDialog(message, caption, true, false, false, false);
             return dialog.ShowDialog() == true;
         }
 
         public static bool YesNo(string message, string caption = "操作提示")
         {
-            var dialog = new MessageDialog(message, caption, false, true, false);
+            var dialog = new MessageDialog(message, caption, false, true, false, false);
             return dialog.ShowDialog() == true;
+        }
+
+        public static UpdateChoice ShowUpdate(string message, string caption = "更新提示", bool showCloseButton = false)
+        {
+            var dialog = new MessageDialog(message, caption, false, false, false, true, showCloseButton);
+            return dialog.ShowDialog() == true ? dialog._choice : UpdateChoice.Cancel;
         }
     }
 }

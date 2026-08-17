@@ -1,14 +1,12 @@
-using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using SeerLauncher.Controls;
 using SeerLauncher.ViewModels;
 
 namespace SeerLauncher
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : BaseWindow
     {
         private readonly MainViewModel _viewModel;
 
@@ -18,19 +16,6 @@ namespace SeerLauncher
             _viewModel = new MainViewModel();
             DataContext = _viewModel;
             VersionBar.Text = _viewModel.VersionText;
-        }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            WindowEffects.Apply(this);
-        }
-
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
-            if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt))
-                e.Handled = true;
-            base.OnPreviewKeyDown(e);
         }
 
         private void ProgramsList_DragOver(object sender, DragEventArgs e)

@@ -270,9 +270,9 @@ var keyword = dialog.InputText;
             dialog.ShowDialog();
         }
 
-        public void OpenInstructions() => OpenUrl(Constants.InstructionsUrl);
-        public void OpenBilibili() => OpenUrl(Constants.DeveloperBilibili);
-        public void OpenStore() => OpenUrl(Constants.StoreUrl);
+        public void OpenInstructions() => FileOperationsService.OpenUrl(Constants.InstructionsUrl);
+        public void OpenBilibili() => FileOperationsService.OpenUrl(Constants.DeveloperBilibili);
+        public void OpenStore() => FileOperationsService.OpenUrl(Constants.StoreUrl);
 
         public void CheckUpdateFromButton() => CheckUpdateAsync(true);
 
@@ -299,36 +299,19 @@ var keyword = dialog.InputText;
             {
                 var message = "检测到新版本，是否更新？" + Environment.NewLine + Environment.NewLine
                             + "以下是本次更新内容：" + Environment.NewLine + info.Info;
-                if (info.IsForceUpdate)
+                var choice = MessageDialog.ShowUpdate(message, "更新提示", showCloseButton: !info.IsForceUpdate);
+                if (choice == UpdateChoice.Cancel)
                 {
-                    if (MessageDialog.Show(message, "更新提示", showCloseButton: false))
-                    {
-                        OpenUrl(info.DownloadUrl);
-                        Application.Current.Shutdown();
-                    }
+                    if (info.IsForceUpdate) Application.Current.Shutdown();
+                    return;
                 }
-                else
-                {
-                    if (MessageDialog.YesNo(message, "更新提示"))
-                    {
-                        OpenUrl(info.DownloadUrl);
-                    }
-                }
+                var url = choice == UpdateChoice.Global ? info.GlobalUrl : info.CnUrl;
+                if (!string.IsNullOrEmpty(url)) FileOperationsService.OpenUrl(url);
+                if (info.IsForceUpdate) Application.Current.Shutdown();
             }
             else if (fromButton)
             {
                 MessageDialog.Show("暂无更新", "更新提示");
-            }
-        }
-
-        private static void OpenUrl(string url)
-        {
-            try
-            {
-                System.Diagnostics.Process.Start(url);
-            }
-            catch
-            {
             }
         }
     }

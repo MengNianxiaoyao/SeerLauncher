@@ -1,7 +1,8 @@
-<Window x:Class="SeerLauncher.MainWindow"
+<local:BaseWindow x:Class="SeerLauncher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:SeerLauncher.Controls"
+        xmlns:local="clr-namespace:SeerLauncher"
         Title="赛尔号辅助启动器" Width="880" Height="600"
         MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
@@ -10,9 +11,7 @@
         Icon="icon.ico"
         Background="{StaticResource WindowBgBrush}">
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="1"
-                      ResizeBorderThickness="0"
-                      UseAeroCaptionButtons="False"/>
+        <StaticResource ResourceKey="AppWindowChrome"/>
     </WindowChrome.WindowChrome>
     <Window.Resources>
         <ContextMenu x:Key="ProgramsContextMenu">
@@ -143,4 +142,4 @@
             </Grid>
         </Border>
     </Grid>
-</Window>
+</local:BaseWindow>

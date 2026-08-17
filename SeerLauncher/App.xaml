@@ -3,6 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <WindowChrome x:Key="AppWindowChrome" CaptionHeight="32" CornerRadius="0"
+                      GlassFrameThickness="1" ResizeBorderThickness="0"
+                      UseAeroCaptionButtons="False"/>
         <SolidColorBrush x:Key="WindowBgBrush" Color="#F4F6FB"/>
         <SolidColorBrush x:Key="CardBgBrush" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="BorderBrush" Color="#E3E8F0"/>

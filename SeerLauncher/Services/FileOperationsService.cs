@@ -41,5 +41,16 @@ namespace SeerLauncher.Services
                 return false;
             }
         }
+
+        public static void OpenUrl(string url)
+        {
+            try
+            {
+                Process.Start(url);
+            }
+            catch
+            {
+            }
+        }
     }
 }
