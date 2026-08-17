@@ -1,6 +1,9 @@
+using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using SeerLauncher.Services;
 using SeerLauncher.ViewModels;
 
 namespace SeerLauncher
@@ -12,7 +15,16 @@ namespace SeerLauncher
         public MainWindow()
         {
             InitializeComponent();
-            _viewModel = new MainViewModel();
+            var runDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            var selfName = Process.GetCurrentProcess().ProcessName + ".exe";
+            _viewModel = new MainViewModel(
+                new ConfigService(runDirectory),
+                new ProgramScanService(),
+                new UpdateService(Constants.UserAgent),
+                new FileOperationsService(),
+                new WpfUiService(),
+                runDirectory,
+                selfName);
             DataContext = _viewModel;
         }
 

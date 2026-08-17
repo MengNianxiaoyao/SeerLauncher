@@ -4,7 +4,7 @@ using System.IO;
 
 namespace SeerLauncher.Services
 {
-    public class ProgramScanService
+    public class ProgramScanService : IProgramScanService
     {
         public List<string> Scan(string directory, string selfName, IList<string> keywords)
         {

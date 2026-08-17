@@ -9,6 +9,12 @@ namespace SeerLauncher
         public const string DeveloperBlog = "https://blog.mnxyio.top/posts/seer/tools";
         public const string StoreUrl = "https://seerxm.mnxyio.top/magic";
         public const string CurrentVersion = "2.3.11";
-        public const string DefaultKeywords = "Seer|CHIKA|雷小伊|重聚";
+        public static readonly string[] DefaultKeywords =
+        {
+            "Seer",
+            "CHIKA",
+            "雷小伊",
+            "重聚"
+        };
     }
 }

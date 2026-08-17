@@ -5,7 +5,7 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace SeerLauncher.Services
 {
-    public class FileOperationsService
+    public class FileOperationsService : IFileOperationsService
     {
         public bool Launch(string fullPath)
         {

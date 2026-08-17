@@ -18,7 +18,7 @@ namespace SeerLauncher.Services
         public bool IsForceUpdate { get; set; }
     }
 
-    public class UpdateService
+    public class UpdateService : IUpdateService
     {
         private const int RequestTimeoutMilliseconds = 15000;
         private readonly string _userAgent;

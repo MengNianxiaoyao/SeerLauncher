@@ -9,7 +9,7 @@ using SeerLauncher.Models;
 
 namespace SeerLauncher.Services
 {
-    public class ConfigService
+    public class ConfigService : IConfigService
     {
         public const string ConfigFileName = "SeerLauncher.json";
         public const string IniFileName = "SeerLauncher.ini";
@@ -76,7 +76,7 @@ namespace SeerLauncher.Services
         private AppConfig CreateDefaultConfig(bool save)
         {
             var config = new AppConfig();
-            foreach (var keyword in Split(Constants.DefaultKeywords))
+            foreach (var keyword in Constants.DefaultKeywords)
                 config.Keywords.Add(keyword);
             _config = config;
             if (save) Save();

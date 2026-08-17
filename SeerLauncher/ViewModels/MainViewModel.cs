@@ -13,25 +13,29 @@ namespace SeerLauncher.ViewModels
 {
     public class MainViewModel : ObservableObject
     {
-        private readonly ConfigService _configService;
-        private readonly ProgramScanService _scanner = new ProgramScanService();
-        private readonly UpdateService _updater;
-        private readonly FileOperationsService _fileOps = new FileOperationsService();
+        private readonly IConfigService _configService;
+        private readonly IProgramScanService _scanner;
+        private readonly IUpdateService _updater;
+        private readonly IFileOperationsService _fileOps;
         private readonly IUiService _ui;
         private readonly string _runDirectory;
         private readonly string _selfName;
 
-        public MainViewModel() : this(new WpfUiService())
+        public MainViewModel(IConfigService configService, IProgramScanService scanner,
+            IUpdateService updater, IFileOperationsService fileOps, IUiService uiService,
+            string runDirectory, string selfName)
         {
-        }
-
-        public MainViewModel(IUiService uiService)
-        {
+            _configService = configService ?? throw new ArgumentNullException(nameof(configService));
+            _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
+            _updater = updater ?? throw new ArgumentNullException(nameof(updater));
+            _fileOps = fileOps ?? throw new ArgumentNullException(nameof(fileOps));
             _ui = uiService ?? throw new ArgumentNullException(nameof(uiService));
-            _runDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            _selfName = System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".exe";
-            _configService = new ConfigService(_runDirectory);
-            _updater = new UpdateService(Constants.UserAgent);
+            _runDirectory = string.IsNullOrEmpty(runDirectory)
+                ? throw new ArgumentException("Run directory is required.", nameof(runDirectory))
+                : runDirectory;
+            _selfName = string.IsNullOrEmpty(selfName)
+                ? throw new ArgumentException("Executable name is required.", nameof(selfName))
+                : selfName;
 
             var config = _configService.Load();
             foreach (var keyword in config.Keywords) Keywords.Add(keyword);
