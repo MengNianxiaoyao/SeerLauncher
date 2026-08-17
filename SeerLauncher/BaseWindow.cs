@@ -15,6 +15,9 @@ namespace SeerLauncher
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
+            if (e.Key == Key.Escape)
+                e.Handled = true;
+
             if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt))
                 e.Handled = true;
             base.OnPreviewKeyDown(e);
