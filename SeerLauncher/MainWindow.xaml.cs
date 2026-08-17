@@ -1,19 +1,14 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
 using SeerLauncher.ViewModels;
 
 namespace SeerLauncher
 {
     public partial class MainWindow : Window
     {
-        private const int WM_GETMINMAXINFO = 0x0024;
-
         private readonly MainViewModel _viewModel;
 
         public MainWindow()
@@ -23,41 +18,6 @@ namespace SeerLauncher
             DataContext = _viewModel;
             VersionBar.Text = _viewModel.VersionText;
         }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
-            source?.AddHook(WndProc);
-        }
-
-        protected override void OnStateChanged(EventArgs e)
-        {
-            base.OnStateChanged(e);
-            MaxBtn.Content = WindowState == WindowState.Maximized ? "❐" : "□";
-        }
-
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            if (msg == WM_GETMINMAXINFO)
-            {
-                var mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-                var wa = SystemParameters.WorkArea;
-                var scale = VisualTreeHelper.GetDpi(this).DpiScaleX;
-                mmi.ptMaxPosition.X = (int)(wa.Left * scale);
-                mmi.ptMaxPosition.Y = (int)(wa.Top * scale);
-                mmi.ptMaxSize.X = (int)(wa.Width * scale);
-                mmi.ptMaxSize.Y = (int)(wa.Height * scale);
-                Marshal.StructureToPtr(mmi, lParam, true);
-                handled = true;
-            }
-            return IntPtr.Zero;
-        }
-
-        private void MinimizeBtn_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
-
-        private void MaxBtn_Click(object sender, RoutedEventArgs e) =>
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e) => Close();
 
@@ -148,22 +108,5 @@ namespace SeerLauncher
         private void Instructions_Click(object sender, RoutedEventArgs e) => _viewModel.OpenInstructions();
         private void Developer_Click(object sender, RoutedEventArgs e) => _viewModel.OpenBilibili();
         private void Store_Click(object sender, RoutedEventArgs e) => _viewModel.OpenStore();
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct POINT
-    {
-        public int X;
-        public int Y;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct MINMAXINFO
-    {
-        public POINT ptReserved;
-        public POINT ptMaxSize;
-        public POINT ptMaxPosition;
-        public POINT ptMinTrackSize;
-        public POINT ptMaxTrackSize;
     }
 }

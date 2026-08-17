@@ -5,11 +5,12 @@
         MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
+        ResizeMode="NoResize"
         Icon="ico.ico"
         Background="{StaticResource WindowBgBrush}">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" CornerRadius="0" GlassFrameThickness="0"
-                      ResizeBorderThickness="6" UseAeroCaptionButtons="False"/>
+                      UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
     <Window.Resources>
         <Style x:Key="CaptionButtonStyle" TargetType="Button">
@@ -95,10 +96,6 @@
                            Foreground="{StaticResource TextBrush}"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                             WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Button Style="{StaticResource CaptionButtonStyle}" Content="─"
-                            Click="MinimizeBtn_Click"/>
-                    <Button x:Name="MaxBtn" Style="{StaticResource CaptionButtonStyle}" Content="□"
-                            Click="MaxBtn_Click"/>
                     <Button Style="{StaticResource CaptionCloseButtonStyle}" Content="✕"
                             Click="CloseBtn_Click"/>
                 </StackPanel>
