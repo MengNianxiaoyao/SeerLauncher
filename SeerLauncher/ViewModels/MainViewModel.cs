@@ -51,8 +51,10 @@ namespace SeerLauncher.ViewModels
             DeleteProgramCommand = new RelayCommand(DeleteProgram, () => SelectedProgram != null);
             OpenDirectoryCommand = new RelayCommand(OpenDirectory);
             RefreshDisplayCommand = new RelayCommand(RefreshDisplay);
-            AuxiliaryDownloadCommand = new RelayCommand(AuxiliaryDownload);
-            CheckUpdateCommand = new RelayCommand(CheckUpdateFromButton);
+            AuxiliaryDownloadCommand = new AsyncRelayCommand(AuxiliaryDownloadAsync,
+                onException: _ => _ui.ShowMessage("获取下载链接失败", "操作提示"));
+            CheckUpdateCommand = new AsyncRelayCommand(() => CheckUpdateAsync(true),
+                onException: _ => _ui.ShowMessage("检测更新失败", "更新提示"));
             OpenInstructionsCommand = new RelayCommand(OpenInstructions);
             OpenBilibiliCommand = new RelayCommand(OpenBilibili);
             OpenStoreCommand = new RelayCommand(OpenStore);
@@ -250,7 +252,7 @@ namespace SeerLauncher.ViewModels
             _ui.OpenDirectory(string.IsNullOrEmpty(path) ? _runDirectory : path);
         }
 
-        private async void AuxiliaryDownload()
+        private async Task AuxiliaryDownloadAsync()
         {
             List<DownloadLink> links;
             try
@@ -274,9 +276,7 @@ namespace SeerLauncher.ViewModels
         private void OpenBilibili() => _ui.OpenUrl(Constants.DeveloperBilibili);
         private void OpenStore() => _ui.OpenUrl(Constants.StoreUrl);
 
-        private void CheckUpdateFromButton() => CheckUpdateAsync(true);
-
-        private async void CheckUpdateAsync(bool fromButton)
+        private async Task CheckUpdateAsync(bool fromButton)
         {
             UpdateInfo info;
             try
@@ -314,5 +314,6 @@ namespace SeerLauncher.ViewModels
                 _ui.ShowMessage("暂无更新", "更新提示");
             }
         }
+
     }
 }

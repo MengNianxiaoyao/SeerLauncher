@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Win32;
@@ -67,9 +68,21 @@ namespace SeerLauncher.Services
             Application.Current.Dispatcher.BeginInvoke(action, DispatcherPriority.Loaded);
         }
 
-        public void RunInBackground(Action action)
+        public void RunInBackground(Func<Task> action)
         {
-            Application.Current.Dispatcher.BeginInvoke(action, DispatcherPriority.Background);
+            Application.Current.Dispatcher.BeginInvoke(new Action(async () => await RunSafely(action)),
+                DispatcherPriority.Background);
+        }
+
+        private static async Task RunSafely(Func<Task> action)
+        {
+            try
+            {
+                await action();
+            }
+            catch
+            {
+            }
         }
     }
 }

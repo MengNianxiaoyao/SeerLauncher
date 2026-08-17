@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using SeerLauncher.Models;
 
 namespace SeerLauncher.Services
@@ -16,6 +17,6 @@ namespace SeerLauncher.Services
         void OpenDirectory(string path);
         void Shutdown();
         void RunOnLoaded(Action action);
-        void RunInBackground(Action action);
+        void RunInBackground(Func<Task> action);
     }
 }

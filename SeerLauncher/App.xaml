@@ -16,6 +16,7 @@
         <SolidColorBrush x:Key="MutedTextBrush" Color="#6B7280"/>
 
         <Style TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="Foreground" Value="#1F2937"/>
             <Setter Property="BorderBrush" Value="#C2CAD6"/>
@@ -82,6 +83,7 @@
         </Style>
 
         <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Width" Value="40"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Background" Value="Transparent"/>
