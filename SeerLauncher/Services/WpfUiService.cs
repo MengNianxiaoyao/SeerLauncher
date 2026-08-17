@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using SeerLauncher.Models;
+using SeerLauncher.ViewModels;
 
 namespace SeerLauncher.Services
 {
@@ -40,7 +41,8 @@ namespace SeerLauncher.Services
 
         public void ShowDownloadLinks(IEnumerable<DownloadLink> links)
         {
-            new DownloadDialog(links) { Owner = Owner }.ShowDialog();
+            var viewModel = new DownloadDialogViewModel(links, this);
+            new DownloadDialog(viewModel) { Owner = Owner }.ShowDialog();
         }
 
         public UpdateChoice ShowUpdate(string message, string caption, bool showCloseButton)

@@ -22,7 +22,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ListBox Grid.Row="0" ItemsSource="{Binding}" MaxHeight="340" Margin="0,0,0,18">
+            <ListBox Grid.Row="0" ItemsSource="{Binding Links}" MaxHeight="340" Margin="0,0,0,18">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Padding" Value="0"/>
@@ -45,7 +45,8 @@
                         <TextBlock TextWrapping="Wrap" VerticalAlignment="Center">
                             <Run Text="{Binding Name, Mode=OneWay}" FontWeight="Bold"/>
                             <Run Text="下载："/>
-                            <Hyperlink NavigateUri="{Binding Url, Mode=OneWay}" Click="Link_Click"
+                            <Hyperlink NavigateUri="{Binding Url, Mode=OneWay}"
+                                       Command="{Binding OpenUrlCommand}"
                                    TextDecorations="None">
                                 <Run Text="{Binding Url, Mode=OneWay}"/>
                             </Hyperlink>

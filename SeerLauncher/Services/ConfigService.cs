@@ -151,7 +151,7 @@ namespace SeerLauncher.Services
             return list;
         }
 
-        public static bool IsValidKeyword(string keyword)
+        public bool IsValidKeyword(string keyword)
         {
             if (string.IsNullOrWhiteSpace(keyword)) return false;
             const string illegal = "\\/:*?\"<>|";

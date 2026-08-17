@@ -8,5 +8,6 @@ namespace SeerLauncher.Services
         AppConfig Config { get; }
         AppConfig Load();
         void Save();
+        bool IsValidKeyword(string keyword);
     }
 }

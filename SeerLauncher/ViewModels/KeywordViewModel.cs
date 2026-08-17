@@ -48,7 +48,7 @@ namespace SeerLauncher.ViewModels
             var input = _ui.Prompt("请输入要添加的关键字", "", "添加关键字");
             if (input == null) return;
             var keyword = input.Trim();
-            if (!ConfigService.IsValidKeyword(keyword))
+            if (!_configService.IsValidKeyword(keyword))
             {
                 _ui.ShowMessage(string.IsNullOrEmpty(keyword)
                     ? "添加的关键字不能为空"
@@ -69,7 +69,7 @@ namespace SeerLauncher.ViewModels
             var input = _ui.Prompt("请输入新的关键字", SelectedItem, "修改关键字");
             if (input == null) return;
             var keyword = input.Trim();
-            if (!ConfigService.IsValidKeyword(keyword))
+            if (!_configService.IsValidKeyword(keyword))
             {
                 _ui.ShowMessage(string.IsNullOrEmpty(keyword)
                     ? "新的关键字不能为空"
