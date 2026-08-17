@@ -148,7 +148,7 @@
                                             <Setter TargetName="bd" Property="Background" Value="#F1F4FB"/>
                                         </Trigger>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="bd" Property="Background" Value="#EEF1FE"/>
+                                            <Setter TargetName="bd" Property="Background" Value="#DDE3FD"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
