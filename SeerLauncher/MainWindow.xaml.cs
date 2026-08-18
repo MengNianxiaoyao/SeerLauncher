@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using SeerLauncher.Services;
 using SeerLauncher.ViewModels;
 
@@ -10,6 +11,9 @@ namespace SeerLauncher
 {
     public partial class MainWindow : BaseWindow
     {
+        private const int WmNcRButtonUp = 0x00A5;
+        private const int HtCaption = 2;
+
         private readonly MainViewModel _viewModel;
 
         public MainWindow()
@@ -26,6 +30,19 @@ namespace SeerLauncher
                 runDirectory,
                 selfName);
             DataContext = _viewModel;
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            HwndSource.FromHwnd(new WindowInteropHelper(this).Handle).AddHook(WindowMessageHook);
+        }
+
+        private static IntPtr WindowMessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == WmNcRButtonUp && wParam.ToInt32() == HtCaption)
+                handled = true;
+            return IntPtr.Zero;
         }
 
         private void ProgramsList_DragOver(object sender, DragEventArgs e)
