@@ -1,0 +1,32 @@
+<local:BaseWindow x:Class="SeerLauncher.Presentation.Windows.MessageDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SeerLauncher.Presentation.Controls"
+        xmlns:local="clr-namespace:SeerLauncher.Presentation.Windows"
+        Title="操作提示" Width="400" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStyle="None"
+        Background="{StaticResource CardBgBrush}">
+    <WindowChrome.WindowChrome>
+        <StaticResource ResourceKey="AppWindowChrome"/>
+    </WindowChrome.WindowChrome>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <controls:CustomTitleBar x:Name="TitleBar" Grid.Row="0"
+                                 Title="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"/>
+        <Grid Grid.Row="1" Margin="20,16,20,18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="MessageText" Grid.Row="0" TextWrapping="Wrap"
+                       FontSize="13" Foreground="{StaticResource TextBrush}"
+                       Margin="0,0,0,18"/>
+            <StackPanel x:Name="ButtonPanel" Grid.Row="1" Orientation="Horizontal"
+                        HorizontalAlignment="Right"/>
+        </Grid>
+    </Grid>
+</local:BaseWindow>
