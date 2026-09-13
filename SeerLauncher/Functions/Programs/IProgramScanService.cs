@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SeerLauncher.Features.Programs
+namespace SeerLauncher.Functions.Programs
 {
     public interface IProgramScanService
     {

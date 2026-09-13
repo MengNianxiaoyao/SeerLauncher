@@ -6,7 +6,7 @@ using SeerLauncher.Infrastructure.Configuration;
 using SeerLauncher.Infrastructure.Mvvm;
 using SeerLauncher.Presentation.Services;
 
-namespace SeerLauncher.Features.Keywords
+namespace SeerLauncher.Functions.Keywords
 {
     public class KeywordViewModel : ObservableObject
     {

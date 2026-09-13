@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-namespace SeerLauncher.Features.Updates
+namespace SeerLauncher.Functions.Updates
 {
     public interface IUpdateService
     {

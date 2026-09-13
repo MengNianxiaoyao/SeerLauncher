@@ -5,7 +5,7 @@ using System.Windows.Input;
 using SeerLauncher.Infrastructure.Mvvm;
 using SeerLauncher.Presentation.Services;
 
-namespace SeerLauncher.Features.Updates
+namespace SeerLauncher.Functions.Updates
 {
     public class DownloadDialogViewModel
     {

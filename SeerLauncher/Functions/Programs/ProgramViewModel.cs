@@ -8,7 +8,7 @@ using SeerLauncher.Infrastructure.FileSystem;
 using SeerLauncher.Infrastructure.Mvvm;
 using SeerLauncher.Presentation.Services;
 
-namespace SeerLauncher.Features.Programs
+namespace SeerLauncher.Functions.Programs
 {
     public class ProgramViewModel : ObservableObject
     {

@@ -6,7 +6,7 @@ using SeerLauncher.Infrastructure.Mvvm;
 using SeerLauncher.Presentation.Services;
 using SeerLauncher.Presentation.Windows;
 
-namespace SeerLauncher.Features.Updates
+namespace SeerLauncher.Functions.Updates
 {
     public class UpdateViewModel
     {
@@ -73,7 +73,7 @@ namespace SeerLauncher.Features.Updates
             }
             if (UpdateService.IsNewer(info.Version, Constants.CurrentVersion))
             {
-                var message = "检测到新版本，是否更新？" + Environment.NewLine + Environment.NewLine
+                var message = "检测到新版本 v" + info.Version + "，是否更新？" + Environment.NewLine + Environment.NewLine
                             + "以下是本次更新内容：" + Environment.NewLine + info.Info;
                 var choice = _ui.ShowUpdate(message, "更新提示", !info.IsForceUpdate);
                 if (choice == UpdateChoice.Cancel)

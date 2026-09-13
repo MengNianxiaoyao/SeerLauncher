@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SeerLauncher.Features.Updates;
+using SeerLauncher.Functions.Updates;
 using SeerLauncher.Presentation.Windows;
 
 namespace SeerLauncher.Presentation.Services

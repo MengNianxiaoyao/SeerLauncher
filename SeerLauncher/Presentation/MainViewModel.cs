@@ -1,8 +1,8 @@
 using System;
 using System.Windows.Input;
-using SeerLauncher.Features.Keywords;
-using SeerLauncher.Features.Programs;
-using SeerLauncher.Features.Updates;
+using SeerLauncher.Functions.Keywords;
+using SeerLauncher.Functions.Programs;
+using SeerLauncher.Functions.Updates;
 using SeerLauncher.Infrastructure.Configuration;
 using SeerLauncher.Infrastructure.FileSystem;
 using SeerLauncher.Infrastructure.Mvvm;

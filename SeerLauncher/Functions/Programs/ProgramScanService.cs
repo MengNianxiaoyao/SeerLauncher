@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace SeerLauncher.Features.Programs
+namespace SeerLauncher.Functions.Programs
 {
     public class ProgramScanService : IProgramScanService
     {

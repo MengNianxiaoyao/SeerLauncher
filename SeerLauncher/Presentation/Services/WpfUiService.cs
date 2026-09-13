@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Win32;
-using SeerLauncher.Features.Updates;
+using SeerLauncher.Functions.Updates;
 using SeerLauncher.Infrastructure.FileSystem;
 using SeerLauncher.Presentation.Windows;
 

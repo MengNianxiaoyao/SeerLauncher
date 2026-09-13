@@ -1,5 +1,5 @@
 using System.Windows;
-using SeerLauncher.Features.Updates;
+using SeerLauncher.Functions.Updates;
 
 namespace SeerLauncher.Presentation.Windows
 {

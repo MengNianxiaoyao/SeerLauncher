@@ -1,4 +1,4 @@
-namespace SeerLauncher.Features.Updates
+namespace SeerLauncher.Functions.Updates
 {
     public class DownloadLink
     {
