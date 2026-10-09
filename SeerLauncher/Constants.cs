@@ -7,7 +7,7 @@ namespace SeerLauncher
         public const string DeveloperBilibili = "https://space.bilibili.com/381745966";
         public const string InstructionsUrl = "https://note.youdao.com/ynoteshare/index.html?id=b7228a46114ccc88324823208cea3565";
         public const string StoreUrl = "https://seerxm.mnxyio.top/magic";
-        public const string CurrentVersion = "2.3.14";
+        public const string CurrentVersion = "2.4.0";
         public static readonly string[] DefaultKeywords =
         {
             "Seer",
