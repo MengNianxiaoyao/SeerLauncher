@@ -25,7 +25,26 @@
             <TextBlock x:Name="PromptText" Grid.Row="0" Margin="0,0,0,12"
                        FontSize="15" Foreground="{StaticResource TextBrush}"/>
             <TextBox x:Name="InputBox" Grid.Row="1" FontSize="14" VerticalContentAlignment="Center"
-                     Padding="8,4"/>
+                     Padding="8,4">
+                <TextBox.CommandBindings>
+                    <CommandBinding Command="ApplicationCommands.Cut"
+                                    CanExecute="OnEditCanExecute"
+                                    Executed="OnCutExecuted"/>
+                    <CommandBinding Command="ApplicationCommands.Copy"
+                                    CanExecute="OnEditCanExecute"
+                                    Executed="OnCopyExecuted"/>
+                    <CommandBinding Command="ApplicationCommands.Paste"
+                                    CanExecute="OnPasteCanExecute"
+                                    Executed="OnPasteExecuted"/>
+                </TextBox.CommandBindings>
+                <TextBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="剪切" Command="ApplicationCommands.Cut" InputGestureText="Ctrl+X"/>
+                        <MenuItem Header="复制" Command="ApplicationCommands.Copy" InputGestureText="Ctrl+C"/>
+                        <MenuItem Header="粘贴" Command="ApplicationCommands.Paste" InputGestureText="Ctrl+V"/>
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
                 <Button Content="确定" Width="80" Height="34" Style="{StaticResource PrimaryButtonStyle}"
                         Click="OnOk" IsDefault="True"/>

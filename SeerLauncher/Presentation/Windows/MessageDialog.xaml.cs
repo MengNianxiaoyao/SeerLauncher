@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace SeerLauncher.Presentation.Windows
 {
@@ -10,11 +11,19 @@ namespace SeerLauncher.Presentation.Windows
         Cn
     }
 
+    public enum DeleteChoice
+    {
+        Cancel,
+        RecycleBin,
+        Permanent
+    }
+
     public partial class MessageDialog : BaseWindow
     {
         private UpdateChoice _choice = UpdateChoice.Cancel;
+        private DeleteChoice _deleteChoice = DeleteChoice.Cancel;
 
-        private MessageDialog(string message, string caption, bool showCancel, bool isYesNo, bool isInfo, bool isUpdate, bool showCloseButton = true)
+        private MessageDialog(string message, string caption, bool showCancel, bool isYesNo, bool isInfo, bool isUpdate, bool showCloseButton = true, bool isDelete = false)
         {
             InitializeComponent();
             Title = caption;
@@ -34,6 +43,12 @@ namespace SeerLauncher.Presentation.Windows
             {
                 AddButton("GitHub", true, false, UpdateChoice.Global, 100);
                 AddButton("网盘下载", false, true, UpdateChoice.Cn, 100);
+            }
+            else if (isDelete)
+            {
+                AddDeleteButton("彻底删除", false, false, DeleteChoice.Permanent, 100, true);
+                AddDeleteButton("移到回收站", true, false, DeleteChoice.RecycleBin, 100);
+                AddDeleteButton("取消", false, true, DeleteChoice.Cancel);
             }
             else
             {
@@ -60,6 +75,22 @@ namespace SeerLauncher.Presentation.Windows
             ButtonPanel.Children.Add(btn);
         }
 
+        private void AddDeleteButton(string content, bool isDefault, bool isCancel, DeleteChoice choice, double width = 80, bool isDanger = false)
+        {
+            var btn = new Button
+            {
+                Content = content,
+                Width = width,
+                Height = 34,
+                Margin = new Thickness(ButtonPanel.Children.Count == 0 ? 0 : 10, 0, 0, 0),
+                IsDefault = isDefault,
+                IsCancel = isCancel
+            };
+            if (isDanger) btn.Foreground = new SolidColorBrush(Color.FromRgb(0xC8, 0x1E, 0x1E));
+            btn.Click += (s, e) => { _deleteChoice = choice; DialogResult = choice != DeleteChoice.Cancel; };
+            ButtonPanel.Children.Add(btn);
+        }
+
         public static bool Show(string message, string caption = "操作提示", bool showCloseButton = true)
         {
             var dialog = new MessageDialog(message, caption, false, false, true, false, showCloseButton);
@@ -82,6 +113,13 @@ namespace SeerLauncher.Presentation.Windows
         {
             var dialog = new MessageDialog(message, caption, false, false, false, true, showCloseButton);
             return dialog.ShowDialog() == true ? dialog._choice : UpdateChoice.Cancel;
+        }
+
+        public static DeleteChoice ShowDelete(string message, string caption = "删除程序")
+        {
+            var dialog = new MessageDialog(message, caption, false, false, false, false, true, true);
+            dialog.Width = 440;
+            return dialog.ShowDialog() == true ? dialog._deleteChoice : DeleteChoice.Cancel;
         }
     }
 }

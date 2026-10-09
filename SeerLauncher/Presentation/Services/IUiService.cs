@@ -10,6 +10,7 @@ namespace SeerLauncher.Presentation.Services
     {
         void ShowMessage(string message, string caption = "操作提示");
         bool Confirm(string message, string caption = "操作提示");
+        DeleteChoice ShowDeleteChoice(string message, string caption = "删除程序");
         string Prompt(string prompt, string defaultValue, string title);
         string SelectExecutable();
         void ShowDownloadLinks(IEnumerable<DownloadLink> links);

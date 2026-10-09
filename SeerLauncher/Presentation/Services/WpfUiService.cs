@@ -24,6 +24,11 @@ namespace SeerLauncher.Presentation.Services
             return MessageDialog.Confirm(message, caption);
         }
 
+        public DeleteChoice ShowDeleteChoice(string message, string caption = "删除程序")
+        {
+            return MessageDialog.ShowDelete(message, caption);
+        }
+
         public string Prompt(string prompt, string defaultValue, string title)
         {
             var dialog = new InputDialog(prompt, defaultValue, title) { Owner = Owner };

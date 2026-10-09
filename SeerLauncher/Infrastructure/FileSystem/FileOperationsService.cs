@@ -43,6 +43,20 @@ namespace SeerLauncher.Infrastructure.FileSystem
             }
         }
 
+        public bool DeletePermanently(string fullPath)
+        {
+            if (!File.Exists(fullPath)) return false;
+            try
+            {
+                File.Delete(fullPath);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static void OpenUrl(string url)
         {
             if (!IsSafeUrl(url)) return;

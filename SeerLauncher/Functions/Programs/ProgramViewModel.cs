@@ -7,6 +7,7 @@ using SeerLauncher.Infrastructure.Configuration;
 using SeerLauncher.Infrastructure.FileSystem;
 using SeerLauncher.Infrastructure.Mvvm;
 using SeerLauncher.Presentation.Services;
+using SeerLauncher.Presentation.Windows;
 
 namespace SeerLauncher.Functions.Programs
 {
@@ -96,11 +97,21 @@ namespace SeerLauncher.Functions.Programs
         private void Delete()
         {
             var name = SelectedItem;
-            if (!_ui.Confirm("是否将《" + name + "》移动到回收站？")) return;
+            var choice = _ui.ShowDeleteChoice(
+                "请选择《" + name + "》的删除方式：" + Environment.NewLine + "移到回收站可在需要时还原，彻底删除将无法恢复。",
+                "删除程序");
+            if (choice == DeleteChoice.Cancel) return;
             var fullPath = GetSelectedPath();
-            if (!_fileOps.DeleteToRecycleBin(fullPath))
+            bool succeeded;
+            if (choice == DeleteChoice.Permanent)
+                succeeded = _fileOps.DeletePermanently(fullPath);
+            else
+                succeeded = _fileOps.DeleteToRecycleBin(fullPath);
+            if (!succeeded)
             {
-                _ui.ShowMessage("删除失败，文件不存在或无法移动到回收站：" + fullPath, "操作提示");
+                _ui.ShowMessage(choice == DeleteChoice.Permanent
+                    ? "彻底删除失败，文件不存在或无法删除：" + fullPath
+                    : "删除失败，文件不存在或无法移动到回收站：" + fullPath, "操作提示");
                 return;
             }
             _configService.Config.Programs.Remove(name);

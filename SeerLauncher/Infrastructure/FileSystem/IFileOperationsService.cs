@@ -4,5 +4,6 @@ namespace SeerLauncher.Infrastructure.FileSystem
     {
         bool Launch(string fullPath);
         bool DeleteToRecycleBin(string fullPath);
+        bool DeletePermanently(string fullPath);
     }
 }
