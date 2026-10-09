@@ -7,10 +7,10 @@
 
 | 症状 | 真因 | 对策 |
 |---|---|---|
-| 右键输入框，无复制菜单 | WPF `TextBox` 默认**没有**右键菜单（MS Learn 文档中相关描述有误，不要信） | §3.1：显式添加 `ContextMenu` |
-| 剪切后文字还在、无任何提示 | 框架 `Cut` 是“先写剪贴板，失败就静默返回、不删字”（源码级实锤，见 §2.2） | §3.2：显式接管 `Cut`，失败弹提示 |
-| 复制后关闭程序，再粘贴失效 | 老式写法（`SetDataObject` 不带 `copy:true`）不落盘 | 用 `SetText` / `SetDataObject(data, copy:true)`，自带落盘，**不要**再调 `Flush` |
-| 复制/剪切明明成功却报“被占用” | 冗余的 `Flush`（或写入内部的 Flush 步骤）抛瞬时异常 | 上报失败前先读回校验，命中则视为成功 |
+| 右键输入框，无复制菜单 | WPF `TextBox` 默认**没有**右键菜单（MS Learn 文档中相关描述有误，不要信） | §3.1：一行附加属性接入，菜单自动生成 |
+| 剪切后文字还在、无任何提示 | 框架 `Cut` 是“先写剪贴板，失败就静默返回、不删字”（源码级实锤，见 §2.2） | §3：显式接管 `Cut`，写成功才删字 |
+| 复制/剪切时 UI 卡顿 | 重试 `Thread.Sleep` 跑在 UI 线程 | 写操作搬到后台 STA 线程，UI 只 `await`（见 §2.6） |
+| 远程同步常驻时剪贴板无内容/频繁报错 | 托管写入（OLE + 内部 Flush）环节多、重试预算短，等不到释放 | 原生 `OpenClipboard` 独占抢占 + 约 10 秒重试，`SetClipboardData` 成功即权威成功（见 §2.6） |
 | 提权运行后 Win+V 历史里没有复制记录 | 系统 by-design：提权进程的复制不进历史记录/云同步 | 不用修（也修不了），见 §2.4 辨析 |
 
 ## 2. 关键结论（先看完再动手）
@@ -55,159 +55,94 @@
 
 给单个 `TextBox` 加 `CommandBinding`（`CanExecute` + `Executed` 均设 `e.Handled = true`）即可 shadow 掉类级的 `TextEditor` 内置处理，且**只影响这一个输入框**，`Ctrl+X` 快捷键和菜单项（同一命令）同时生效。复制/粘贴不加绑定则保持原样——按需逐个接管。
 
-## 3. 通用修复模板（可直接抄）
+### 2.6 终版方案：原生写入 + 后台线程（替代托管 `Clipboard` 类）
 
-### 3.1 XAML：菜单 + 命令绑定
+托管 `Clipboard.SetText` 走 OLE（`OleSetClipboard` + 内部 Flush），环节多、误报多（见 §2.2 补充），且重试只能跑在 UI 线程（卡 UI）。终版改用三招：
+
+1. **原生单步抢占**：`OpenClipboard → EmptyClipboard → SetClipboardData(CF_UNICODETEXT) → CloseClipboard`。抢到独占即拥有，`SetClipboardData` 成功即**权威成功**——不做托管读回、不调 `Flush`（原生写入自带落盘，关闭程序后仍可粘贴）。
+2. **后台 STA 线程 + 长重试**：写操作在专用后台线程（`SetApartmentState(STA)`）每 10ms 抢一次、最多约 10 秒；UI 线程只 `await`，从不 `Sleep`，不卡界面。远程同步类软件的长持有也能等过去。
+3. **剪切先存后删**：`await` 前记下 `SelectedText`，写成功后复核“仍可编辑且选区未变”才删字，避免异步等待期间用户改了选区导致误删。
+
+## 3. 通用修复模板：`TextBoxClipboard` 附加行为（可直接抄）
+
+完整实现见本仓库 `SeerLauncher/Presentation/Controls/TextBoxClipboard.cs`（单文件、无第三方依赖），下面是用法与核心模式。
+
+### 3.1 接入：XAML 一行 + 按需直接调用
 
 ```xml
-<TextBox x:Name="InputBox">
-    <TextBox.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Cut"
-                        CanExecute="OnEditCanExecute"
-                        Executed="OnCutExecuted"/>
-        <CommandBinding Command="ApplicationCommands.Copy"
-                        CanExecute="OnEditCanExecute"
-                        Executed="OnCopyExecuted"/>
-        <CommandBinding Command="ApplicationCommands.Paste"
-                        CanExecute="OnPasteCanExecute"
-                        Executed="OnPasteExecuted"/>
-    </TextBox.CommandBindings>
-    <TextBox.ContextMenu>
-        <ContextMenu>
-            <MenuItem Header="剪切" Command="ApplicationCommands.Cut" InputGestureText="Ctrl+X"/>
-            <MenuItem Header="复制" Command="ApplicationCommands.Copy" InputGestureText="Ctrl+C"/>
-            <MenuItem Header="粘贴" Command="ApplicationCommands.Paste" InputGestureText="Ctrl+V"/>
-        </ContextMenu>
-    </TextBox.ContextMenu>
-</TextBox>
+<!-- xmlns:controls="clr-namespace:SeerLauncher.Presentation.Controls" -->
+<TextBox x:Name="InputBox"
+         controls:TextBoxClipboard.Enable="True"/>
 ```
 
-### 3.2 C#：显式处理 + 明确反馈
+`Enable="True"` 自动完成三件事：挂剪切/复制/粘贴的命令接管、生成右键菜单（命令显式指定 `CommandTarget`，不依赖焦点）。置 `False` 可完整卸载。不经过输入框的复制（如按钮一键复制）直接调：
 
 ```csharp
-using System.Runtime.InteropServices; // ExternalException
-using System.Windows;
-using System.Windows.Input;
+bool copied = await TextBoxClipboard.TrySetTextAsync(text);
+```
 
-private bool IsEditable => InputBox != null && InputBox.IsEnabled && !InputBox.IsReadOnly;
+### 3.2 核心模式（完整代码见 `TextBoxClipboard.cs`，不再全文复述）
 
-private void OnEditCanExecute(object sender, CanExecuteRoutedEventArgs e)
+```csharp
+// 原生单步抢占：抢到独占即拥有；后台线程每 10ms 抢一次，最多约 10 秒
+public static bool TrySetText(string text)
 {
-    e.CanExecute = IsEditable && InputBox.SelectionLength > 0; // 选中为空时菜单自动置灰
-    e.Handled = true;
-}
-
-private void OnPasteCanExecute(object sender, CanExecuteRoutedEventArgs e)
-{
-    e.CanExecute = IsEditable;
-    e.Handled = true;
-}
-
-        private void OnCutExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            e.Handled = true;
-            if (InputBox.SelectionLength == 0) return; // 未选中时菜单已置灰，静默返回即可
-            if (!WriteClipboard(InputBox.SelectedText, "剪切")) return;
-            InputBox.SelectedText = string.Empty;
-        }
-
-        private void OnCopyExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            e.Handled = true;
-            if (InputBox.SelectionLength == 0) return;
-            WriteClipboard(InputBox.SelectedText, "复制");
-        }
-
-private void OnPasteExecuted(object sender, ExecutedRoutedEventArgs e)
-{
-    e.Handled = true;
-    string text;
-    try
+    for (var attempt = 0; attempt < 1000; attempt++)
     {
-        text = Clipboard.ContainsText() ? Clipboard.GetText() : null;
+        if (TryOpenAndSet(text)) return true;
+        Thread.Sleep(10); // 跑在后台 STA 线程，不卡 UI
     }
-    catch (ExternalException)
-    {
-        MessageBox.Show("剪贴板正被其他程序占用，粘贴失败，请稍后重试。", "粘贴");
-        return;
-    }
-    if (string.IsNullOrEmpty(text)) return; // 空剪贴板静默返回
-    InputBox.SelectedText = text; // 有选区则替换，无选区则在光标处插入
-}
-
-        private static bool WriteClipboard(string text, string caption)
-{
-    // SetText 自带落盘，不要再调 Flush；退避重试吸收长持有（远程同步类软件）
-    int[] delays = { 50, 100, 200, 400 };
-    foreach (int delay in delays)
-    {
-        try
-        {
-            Clipboard.SetText(text);
-            return true;
-        }
-        catch (ExternalException)
-        {
-            if (IsClipboardText(text)) return true; // 落盘成功、后续步骤失败属于误报
-            Thread.Sleep(delay);
-        }
-    }
-    MessageBox.Show("剪贴板正被其他程序占用，请稍后重试。", caption);
     return false;
 }
 
-// 以下为排查期可选手段：耗尽后查占用者进程名，写进报错（需 using System.Diagnostics + System.Runtime.InteropServices）
-private static string GetClipboardHolderName()
+// OpenClipboard → EmptyClipboard → SetClipboardData(CF_UNICODETEXT) → CloseClipboard
+// SetClipboardData 成功即权威成功：不做托管读回、不调 Flush
+private static bool TryOpenAndSet(string text) { /* P/Invoke，见源文件 */ }
+
+// 后台 STA 线程包装：UI 侧 async/await，不冻结界面
+public static Task<bool> TrySetTextAsync(string text)
 {
-    try
+    var completion = new TaskCompletionSource<bool>();
+    var thread = new Thread(() =>
     {
-        var hwnd = GetOpenClipboardWindow();
-        if (hwnd == IntPtr.Zero) return null;
-        int pid;
-        GetWindowThreadProcessId(hwnd, out pid);
-        using (var process = Process.GetProcessById(pid))
-            return process.ProcessName + ".exe";
-    }
-    catch
-    {
-        return null;
-    }
+        try { completion.SetResult(TrySetText(text)); }
+        catch (Exception exception) { completion.SetException(exception); }
+    });
+    thread.SetApartmentState(ApartmentState.STA);
+    thread.IsBackground = true;
+    thread.Start();
+    return completion.Task;
 }
 
-[DllImport("user32.dll")]
-private static extern IntPtr GetOpenClipboardWindow();
+// 剪切：先存选区 → await 写入 → 复核“仍可编辑且选区未变”才删字
+var selectedText = textBox.SelectedText;
+bool written = await TrySetTextAsync(selectedText);
+if (!written) { /* 弹“被占用”提示 */ return; }
+if (!IsEditable(textBox) || textBox.SelectedText != selectedText) return;
+textBox.SelectedText = string.Empty;
 
-[DllImport("user32.dll")]
-private static extern int GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
-
-private static bool IsClipboardText(string expected)
-{
-    try
-    {
-        return Clipboard.ContainsText() && Clipboard.GetText() == expected;
-    }
-    catch (ExternalException)
-    {
-        return false;
-    }
-}
+// 粘贴：托管读取即可（读失败才提示，空剪贴板静默返回）；先记插入点再替换
+var insertionStart = textBox.SelectionStart;
+textBox.SelectedText = text;
+textBox.Select(insertionStart + text.Length, 0); // 光标钉到末尾，消掉选区
 ```
 
-说明：
+设计说明（与源文件 `TextBoxClipboard.cs` 对应）：
 
-- 只捕获 `ExternalException`（剪贴板被占），与框架吞掉的异常口径一致；其他异常保持原样上抛，不掩盖真正的 bug。
-- `SelectedText` 读写都是可撤销的常规编辑，不破坏 `Ctrl+Z`。
-- 单行纯文本框用 `SetText`/`GetText` 足够；富文本框需另行处理格式（`DataFormats.Xaml` 等），不在本模板范围。
+- 右键菜单在代码里生成（`EnsureContextMenu`），`CommandTarget` 显式指向输入框，不依赖焦点；菜单样式走各项目 App.xaml 的隐式样式。
+- 写路径只表达“抢到/没抢到”（返回 bool 重试），不吞其他异常；`SetClipboardData` 成功即权威成功。
+- `SelectedText` 读写都是可撤销的常规编辑，不破坏 `Ctrl+Z`；粘贴后光标钉到插入末尾。
+- 纯文本场景只用 `CF_UNICODETEXT`；富文本需另行处理格式，不在本模板范围。
 
 ## 4. 验证清单
 
 1. 选中文字 → 右键菜单剪切/复制/粘贴可用；未选中时剪切/复制置灰。
 2. `Ctrl+X/C/V` 与菜单行为一致。
-3. 复制 → 关闭程序 → 到记事本粘贴，内容仍在（`SetText` 自带落盘）。
-4. 用剪贴板占用工具（或远程桌面会话）锁住剪贴板时操作，应看到明确的“被占用”提示而非无反应；Win11 开剪贴板历史时正常复制/剪切不应再误报。
+3. 复制 → 关闭程序 → 到记事本粘贴，内容仍在（原生写入自带落盘）。
+4. 远程同步软件常驻时复制/剪切：应成功（最多体感顿一下）或看到明确的“被占用”提示；UI 不冻结。
 5. `Ctrl+Z` 能撤销剪切/粘贴。
 
 ## 5. 附：本项目实例
 
-- `SeerLauncher/Presentation/Windows/InputDialog.xaml`：菜单与绑定（程序内唯一的 `TextBox` 在此）。
-- `SeerLauncher/Presentation/Windows/InputDialog.xaml.cs`：上述模板的落地实现（提示用的是项目自研 `MessageDialog`，其他项目照模板用 `MessageBox` 即可）。
+- `SeerLauncher/Presentation/Controls/TextBoxClipboard.cs`：附加行为完整实现（单文件移植自 xm-keygen，提示换成项目自研 `MessageDialog`）。
+- `SeerLauncher/Presentation/Windows/InputDialog.xaml`：`controls:TextBoxClipboard.Enable="True"` 一行接入（程序内唯一的 `TextBox` 在此）。
