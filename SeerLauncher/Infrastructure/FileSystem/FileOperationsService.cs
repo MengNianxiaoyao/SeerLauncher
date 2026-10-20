@@ -62,7 +62,8 @@ namespace SeerLauncher.Infrastructure.FileSystem
             if (!IsSafeUrl(url)) return;
             try
             {
-                Process.Start(url);
+                // 经 explorer 中转，避免提权后把浏览器也拉成管理员身份
+                Process.Start(new ProcessStartInfo("explorer.exe", "\"" + url + "\"") { UseShellExecute = true });
             }
             catch
             {
