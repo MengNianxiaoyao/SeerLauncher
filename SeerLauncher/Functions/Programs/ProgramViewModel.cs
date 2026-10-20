@@ -58,20 +58,6 @@ namespace SeerLauncher.Functions.Programs
             foreach (var item in _scanner.MergeConfiguredAndScanned(configured, scanned)) Items.Add(item);
         }
 
-        public void HandleDroppedFiles(IEnumerable<string> files)
-        {
-            foreach (var file in files)
-            {
-                var name = Path.GetFileName(file);
-                if (!name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    _ui.ShowMessage("添加的文件不是可执行文件", "操作提示");
-                    continue;
-                }
-                if (_ui.Confirm("是否添加《" + name + "》？")) AddFile(file);
-            }
-        }
-
         private void Add()
         {
             var fullPath = _ui.SelectExecutable();

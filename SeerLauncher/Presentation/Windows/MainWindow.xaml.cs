@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,10 +17,6 @@ namespace SeerLauncher.Presentation.Windows
     {
         private const int WmNcRButtonUp = 0x00A5;
         private const int HtCaption = 2;
-        private const int WmDropFiles = 0x0233;
-        private const int WmCopyData = 0x004A;
-        private const int WmCopyGlobalData = 0x0049;
-        private const uint MsgfltAllow = 1;
 
         private readonly MainViewModel _viewModel;
 
@@ -44,68 +39,15 @@ namespace SeerLauncher.Presentation.Windows
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-            var handle = new WindowInteropHelper(this).Handle;
-            // 提权后从资源管理器（普通权限）拖文件进来：UIPI 会拦截，需放行这三个消息
-            // 0x0049 为 WM_COPYGLOBALDATA，跨完整性级别传输拖拽数据时使用
-            ChangeWindowMessageFilterEx(handle, WmDropFiles, MsgfltAllow, IntPtr.Zero);
-            ChangeWindowMessageFilterEx(handle, WmCopyData, MsgfltAllow, IntPtr.Zero);
-            ChangeWindowMessageFilterEx(handle, WmCopyGlobalData, MsgfltAllow, IntPtr.Zero);
-            DragAcceptFiles(handle, true);
-            HwndSource.FromHwnd(handle).AddHook(WindowMessageHook);
+            HwndSource.FromHwnd(new WindowInteropHelper(this).Handle).AddHook(WindowMessageHook);
         }
 
-        private IntPtr WindowMessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        private static IntPtr WindowMessageHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (msg == WmNcRButtonUp && wParam.ToInt32() == HtCaption)
-            {
                 handled = true;
-            }
-            else if (msg == WmDropFiles)
-            {
-                handled = OnFilesDropped(wParam);
-            }
             return IntPtr.Zero;
         }
-
-        private bool OnFilesDropped(IntPtr hDrop)
-        {
-            try
-            {
-                var files = ReadDroppedFiles(hDrop);
-                if (files.Length > 0) _viewModel.Programs.HandleDroppedFiles(files);
-                return true;
-            }
-            finally
-            {
-                DragFinish(hDrop);
-            }
-        }
-
-        private static string[] ReadDroppedFiles(IntPtr hDrop)
-        {
-            var count = (int)DragQueryFile(hDrop, uint.MaxValue, null, 0);
-            var files = new string[count];
-            for (uint index = 0; index < count; index++)
-            {
-                var length = (int)DragQueryFile(hDrop, index, null, 0);
-                var buffer = new char[length + 1];
-                DragQueryFile(hDrop, index, buffer, (uint)buffer.Length);
-                files[index] = new string(buffer, 0, (int)length);
-            }
-            return files;
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool ChangeWindowMessageFilterEx(IntPtr hwnd, int message, uint action, IntPtr changeFilterStruct);
-
-        [DllImport("shell32.dll", SetLastError = true)]
-        private static extern void DragAcceptFiles(IntPtr hwnd, bool accept);
-
-        [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern uint DragQueryFile(IntPtr hDrop, uint fileIndex, [Out] char[] fileName, uint cch);
-
-        [DllImport("shell32.dll", SetLastError = true)]
-        private static extern void DragFinish(IntPtr hDrop);
 
         private void ProgramsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
