@@ -13,7 +13,13 @@ namespace SeerLauncher.Infrastructure.FileSystem
             if (!File.Exists(fullPath)) return false;
             try
             {
-                Process.Start(new ProcessStartInfo(fullPath) { UseShellExecute = true });
+                // 必须把工作目录设为程序自身所在目录，否则子进程继承启动器的工作目录，
+                // 导致目标程序把配置/存档等相对路径文件写到启动器目录里
+                Process.Start(new ProcessStartInfo(fullPath)
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = Path.GetDirectoryName(fullPath) ?? string.Empty
+                });
                 return true;
             }
             catch
