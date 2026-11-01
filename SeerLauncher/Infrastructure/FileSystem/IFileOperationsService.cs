@@ -2,8 +2,8 @@ namespace SeerLauncher.Infrastructure.FileSystem
 {
     public interface IFileOperationsService
     {
-        bool Launch(string fullPath);
-        bool DeleteToRecycleBin(string fullPath);
-        bool DeletePermanently(string fullPath);
+        LaunchResult Launch(string fullPath);
+        DeleteResult DeleteToRecycleBin(string fullPath);
+        DeleteResult DeletePermanently(string fullPath);
     }
 }

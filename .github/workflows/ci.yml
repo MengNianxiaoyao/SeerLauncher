@@ -14,7 +14,7 @@ jobs:
       - uses: microsoft/setup-msbuild@v3
 
       - name: Build
-        run: msbuild SeerLauncher.sln /restore /p:Configuration=Release
+        run: msbuild SeerLauncher.sln /restore /p:Configuration=Release /m /v:minimal
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7

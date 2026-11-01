@@ -32,7 +32,11 @@ namespace SeerLauncher.Presentation
             Updates = new UpdateViewModel(updater, uiService);
             RefreshDisplayCommand = new RelayCommand(RefreshDisplay);
             Keywords.KeywordsChanged += (sender, args) => Programs.Refresh();
-            RefreshDisplay();
+
+            // 关键字只读内存，立即填充；程序列表要扫描目录，推迟到窗口首次绘制后再做，
+            // 避免目录里 exe 较多时阻塞窗口显示
+            Keywords.Refresh();
+            uiService.RunOnLoaded(Programs.Refresh);
 
             if (configService.HasCorruptConfig)
             {

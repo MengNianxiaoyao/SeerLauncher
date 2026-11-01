@@ -5,7 +5,7 @@ namespace SeerLauncher.Infrastructure.Configuration
         bool HasCorruptConfig { get; }
         AppConfig Config { get; }
         AppConfig Load();
-        void Save();
+        bool Save();
         bool IsValidKeyword(string keyword);
     }
 }

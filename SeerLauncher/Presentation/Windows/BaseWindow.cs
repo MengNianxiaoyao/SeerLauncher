@@ -15,7 +15,9 @@ namespace SeerLauncher.Presentation.Windows
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.Escape || e.Key == Key.Tab)
+            // 屏蔽 Esc 防止对话框被误关；Alt 防止弹出系统菜单。
+            // Tab 不能屏蔽：否则对话框内无法用键盘切换焦点（文本框 → 按钮）。
+            if (e.Key == Key.Escape)
                 e.Handled = true;
 
             if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt))

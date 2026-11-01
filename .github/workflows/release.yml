@@ -25,7 +25,7 @@ jobs:
           echo "version=$ver" >> $env:GITHUB_OUTPUT
 
       - name: Build
-        run: msbuild SeerLauncher.sln /restore /p:Configuration=Release
+        run: msbuild SeerLauncher.sln /restore /p:Configuration=Release /m /v:minimal
 
       - name: Package
         shell: pwsh

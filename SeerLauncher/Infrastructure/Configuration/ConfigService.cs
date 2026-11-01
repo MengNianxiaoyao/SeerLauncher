@@ -64,7 +64,15 @@ namespace SeerLauncher.Infrastructure.Configuration
             }
             else if (File.Exists(IniPath))
             {
-                _config = MigrateFromIni();
+                try
+                {
+                    _config = MigrateFromIni();
+                }
+                catch (Exception)
+                {
+                    // INI 被占用或无权限时回退到默认配置，避免启动直接崩溃
+                    _config = CreateDefaultConfig(false);
+                }
             }
             else
             {
@@ -83,18 +91,25 @@ namespace SeerLauncher.Infrastructure.Configuration
             return config;
         }
 
-        public void Save()
+        public bool Save()
         {
-            Directory.CreateDirectory(_baseDirectory);
-            var content = SerializeFormatted(_config);
+            if (_config == null) return false;
+
             var tempPath = Path.Combine(_baseDirectory, ConfigFileName + "." + Guid.NewGuid().ToString("N") + ".tmp");
             try
             {
-                File.WriteAllText(tempPath, content, new UTF8Encoding(false));
+                Directory.CreateDirectory(_baseDirectory);
+                File.WriteAllText(tempPath, SerializeFormatted(_config), new UTF8Encoding(false));
                 if (File.Exists(ConfigPath))
                     File.Replace(tempPath, ConfigPath, null);
                 else
                     File.Move(tempPath, ConfigPath);
+                return true;
+            }
+            catch (Exception)
+            {
+                // 只读目录、文件被占用等：由调用方提示用户，内存中的修改仍然生效
+                return false;
             }
             finally
             {
@@ -111,6 +126,7 @@ namespace SeerLauncher.Infrastructure.Configuration
         private AppConfig Deserialize(string json)
         {
             var config = _serializer.Deserialize<AppConfig>(json);
+            if (config == null) throw new InvalidDataException("配置内容为空。");
             if (config.Keywords == null) config.Keywords = new List<string>();
             var programs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             if (config.Programs != null)
@@ -135,7 +151,8 @@ namespace SeerLauncher.Infrastructure.Configuration
             }
 
             _config = config;
-            Save();
+            // 保存失败就保留 INI，下次启动再迁移，避免数据丢失
+            if (!Save()) return config;
 
             if (File.Exists(IniBackupPath)) File.Delete(IniBackupPath);
             File.Move(IniPath, IniBackupPath);

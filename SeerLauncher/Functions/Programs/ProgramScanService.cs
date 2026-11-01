@@ -11,7 +11,7 @@ namespace SeerLauncher.Functions.Programs
             var result = new List<string>();
             if (!Directory.Exists(directory)) return result;
 
-            foreach (var file in Directory.GetFiles(directory, "*.exe", SearchOption.TopDirectoryOnly))
+            foreach (var file in Directory.EnumerateFiles(directory, "*.exe", SearchOption.TopDirectoryOnly))
             {
                 var name = Path.GetFileName(file);
                 if (string.Equals(name, selfName, StringComparison.OrdinalIgnoreCase)) continue;

@@ -45,8 +45,7 @@
                         <TextBlock TextWrapping="Wrap" VerticalAlignment="Center">
                             <Run Text="{Binding Name, Mode=OneWay}" FontWeight="Bold"/>
                             <Run Text="下载："/>
-                            <Hyperlink NavigateUri="{Binding Url, Mode=OneWay}"
-                                       Command="{Binding OpenUrlCommand}"
+                            <Hyperlink Command="{Binding OpenUrlCommand}"
                                    TextDecorations="None">
                                 <Run Text="{Binding Url, Mode=OneWay}"/>
                             </Hyperlink>

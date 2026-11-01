@@ -21,7 +21,6 @@ namespace SeerLauncher.Functions.Keywords
             AddCommand = new RelayCommand(Add);
             ModifyCommand = new RelayCommand(Modify, () => SelectedItem != null);
             DeleteCommand = new RelayCommand(Delete, () => SelectedItem != null);
-            Refresh();
         }
 
         public event EventHandler KeywordsChanged;
@@ -97,7 +96,8 @@ namespace SeerLauncher.Functions.Keywords
 
         private void SaveAndNotify()
         {
-            _configService.Save();
+            if (!_configService.Save())
+                _ui.ShowMessage("配置保存失败，本次修改可能无法在下次启动时保留。", "保存失败");
             Refresh();
             KeywordsChanged?.Invoke(this, EventArgs.Empty);
         }
