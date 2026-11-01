@@ -70,7 +70,7 @@
                 <Button Grid.Column="1" Content="检查更新" Margin="6,0,0,0" Command="{Binding Updates.CheckUpdateCommand}"/>
                 <Button Grid.Column="2" Content="程序说明" Margin="6,0,0,0" Command="{Binding Updates.OpenInstructionsCommand}"/>
                 <Button Grid.Column="3" Content="关于开发者" Margin="6,0,0,0" Command="{Binding Updates.OpenBilibiliCommand}"/>
-                <Button Grid.Column="4" Content="商店" Style="{StaticResource PrimaryButtonStyle}"
+                <Button Grid.Column="4" Content="魔法商店" Style="{StaticResource PrimaryButtonStyle}"
                         Margin="14,0,0,0" Command="{Binding Updates.OpenStoreCommand}"/>
             </Grid>
         </Border>

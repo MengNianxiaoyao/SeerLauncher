@@ -166,13 +166,25 @@ namespace SeerLauncher.Infrastructure.FileSystem
         public static void OpenUrl(string url)
         {
             if (!IsSafeUrl(url)) return;
+
+            // 首选经 explorer 中转，浏览器以普通用户身份启动；
+            // 第三方 shell 或 explorer 不可用时兜底直接交给系统关联程序（此时会继承管理员身份）
+            if (TryStart(new ProcessStartInfo("explorer.exe", "\"" + url + "\"") { UseShellExecute = true }))
+                return;
+
+            TryStart(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+
+        private static bool TryStart(ProcessStartInfo startInfo)
+        {
             try
             {
-                // 经 explorer 中转，避免提权后把浏览器也拉成管理员身份
-                Process.Start(new ProcessStartInfo("explorer.exe", "\"" + url + "\"") { UseShellExecute = true });
+                Process.Start(startInfo);
+                return true;
             }
             catch
             {
+                return false;
             }
         }
 
